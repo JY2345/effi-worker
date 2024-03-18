@@ -1,7 +1,10 @@
+import { Task } from 'src/task/entities/task.entity';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -22,13 +25,15 @@ export class Comment {
   @UpdateDateColumn({ type: 'bigint', name: 'updatedAt' })
   updatedAt: number;
 
-  @ManyToOne(() => Task, (task) => task.comment)
+  @ManyToOne(() => Task, (task) => task.comments)
+  @JoinColumn({ name: 'taskId' })
   task: Task;
 
   @Column({ type: 'int', name: 'taskId', select: true, nullable: false })
   taskId: number;
 
   @ManyToOne(() => User, (user) => user.comment)
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column({ type: 'int', name: 'userId', select: true, nullable: false })

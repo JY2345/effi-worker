@@ -1,3 +1,6 @@
+import { User } from 'src/user/entities/user.entity';
+import { ColumnEntity } from 'src/column/entities/column.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 import {
   Column,
   CreateDateColumn,
@@ -46,9 +49,11 @@ export class Task {
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
 
-  @ManyToOne(() => Column, (column) => column.tasks, { onDelete: 'CASCADE' })
-  column: Column;
+  @ManyToOne(() => ColumnEntity, (column) => column.tasks, {
+    onDelete: 'CASCADE',
+  })
+  column: ColumnEntity;
 
-  @ManyToOne(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.task, { onDelete: 'CASCADE' })
   user: User;
 }
