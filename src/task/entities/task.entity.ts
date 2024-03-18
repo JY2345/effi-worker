@@ -1,7 +1,6 @@
 import { User } from 'src/user/entities/user.entity';
 import { ColumnEntity } from 'src/column/entities/column.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
-
 import {
   Column,
   CreateDateColumn,
@@ -12,23 +11,21 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
 @Entity('task')
 export class Task {
   @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
-
-  @Column({ type: 'bigint', name: 'columnId', nullable: false })
+  @Column({ type: 'int', name: 'columnId', nullable: false })
   columnId: number;
 
-  @Column({ type: 'bigint', name: 'userId', nullable: false })
+  @Column({ type: 'int', name: 'userId', nullable: false })
   userId: number;
 
   @Column({ type: 'varchar', nullable: false })
   name: string;
 
   @Column({ type: 'text' })
-  info: Date;
+  info: string;
 
   @Column({ type: 'varchar', nullable: false })
   color: string;
