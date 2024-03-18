@@ -18,9 +18,9 @@ export class BoardColumn extends BaseEntity {
   @Column({ type: 'varchar', length: 255, name: 'name' })
   name: string;
 
-  @CreateDateColumn({ type: 'bigint', name: 'createdAt' })
-  createdAt: number;
+  @CreateDateColumn({ type: 'datetime', name: 'createdAt' })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'bigint', name: 'updatedAt' })
-  updatedAt: number;
+  @UpdateDateColumn({ type: 'datetime', name: 'updatedAt' })
+  updatedAt: Date;
 }
