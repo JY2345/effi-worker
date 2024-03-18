@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -40,4 +42,13 @@ export class Task {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @OneToMany(() => Comment, (comment) => comment.task)
+  comments: Comment[];
+
+  @ManyToOne(() => Column, (column) => column.tasks, { onDelete: 'CASCADE' })
+  column: Column;
+
+  @ManyToOne(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })
+  user: User;
 }

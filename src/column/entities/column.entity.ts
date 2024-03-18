@@ -1,26 +1,24 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  BaseEntity,
-  CreateDateColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, BaseEntity, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Board } from '../../board/entities/board.entity';
 
-@Entity('Columns')
-export class BoardColumn extends BaseEntity {
+@Entity('Column')
+export class ColumnEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('bigint', { name: 'boardId' })
+  @Column({ type: 'bigint', nullable: false })
   boardId: number;
 
-  @Column({ type: 'varchar', length: 255, name: 'name' })
+  @Column({ type: 'varchar', length: 255, nullable: false })
   name: string;
 
-  @CreateDateColumn({ type: 'bigint', name: 'createdAt' })
-  createdAt: number;
+  @CreateDateColumn({ type: 'datetime', nullable: false })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'bigint', name: 'updatedAt' })
-  updatedAt: number;
+  @UpdateDateColumn({ type: 'datetime', nullable: false })
+  updatedAt: Date;
+
+  @ManyToOne(() => Board, board => board.columns, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'boardId' }) 
+  board: Board;
 }
