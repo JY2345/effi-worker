@@ -15,7 +15,7 @@ export class BoardService {
   async create(createBoardDto: CreateBoardDto) {
     const { name, color, info } = createBoardDto;
     // board생성
-    const board = await this.boardRepository.insert({
+    const board = await this.boardRepository.save({
       name,
       color,
       info,

@@ -12,6 +12,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import Joi from 'joi';
 import { AuthModule } from './auth/auth.module';
+import { BoardUser } from './board/entities/boardUser.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -24,7 +25,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [User, BoardModule, Board],
+    entities: [User, Board, BoardUser],
     synchronize: configService.get('DB_SYNC'),
     logging: true, // row query 출력
   }),
