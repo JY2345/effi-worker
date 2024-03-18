@@ -1,4 +1,6 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { ColumnEntity } from 'src/column/entities/column.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { BoardUser } from './boardUser.entity';
 
 @Entity({
   name: 'board',
@@ -28,4 +30,10 @@ export class Board {
 
   @Column({ type: 'datetime', nullable: true })
   updatedAt?: Date;
+
+  @OneToMany(() => ColumnEntity, (column) => column.board)
+  columns: ColumnEntity[];
+
+  @OneToMany(() => BoardUser, (boardUser) => boardUser.board)
+  boardUser: BoardUser[];
 }
