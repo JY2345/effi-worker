@@ -29,7 +29,7 @@ export class Comment {
   @JoinColumn({ name: 'taskId' })
   task: Task;
 
-  @Column({ type: 'int', name: 'taskId', select: true, nullable: false })
+  @Column({ type: 'int', unsigned: true, name: 'taskId', nullable: false })
   taskId: number;
 
   @ManyToOne(() => User, (user) => user.comment)
