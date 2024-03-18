@@ -6,9 +6,11 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToMany,
   JoinColumn,
 } from 'typeorm';
 import { Board } from '../../board/entities/board.entity';
+import { Task } from '../../task/entities/task.entity';
 
 @Entity('Column')
 export class ColumnEntity extends BaseEntity {
@@ -27,6 +29,11 @@ export class ColumnEntity extends BaseEntity {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 
+  @OneToMany(() => Task, task => task.column, {
+    cascade: true,
+  })
+  tasks: Task[];
+  
   @ManyToOne(() => Board, (board) => board.columns, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'boardId' })
   board: Board;
