@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
+import { InviteBoardDto } from './dto/inviteBoard.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/entities/user.entity';
 
@@ -71,4 +71,21 @@ export class BoardController {
   }
 
   // 보드 초대
+  @Post(':id')
+  async invite(
+    @Param('id') id: bigint,
+    /*@UserInfo() user:User, */ inviteBoardDto: InviteBoardDto,
+  ) {
+    //이건 지울것
+    const user = {
+      id: 1,
+    };
+    const inviteCount = await this.boardService.invite(
+      id,
+      user.id,
+      inviteBoardDto,
+    );
+
+    return { successMessage: `현재 일잘러 참가 인원 : ${inviteCount}명` };
+  }
 }

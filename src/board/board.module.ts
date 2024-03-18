@@ -7,10 +7,10 @@ import { ColumnEntity } from 'src/column/entities/column.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Board } from './entities/board.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
-import { UserModule } from 'src/user/user.module';
+import { BoardUser } from './entities/boardUser.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([ColumnEntity, User, Board]), UserModule],
+  imports: [TypeOrmModule.forFeature([ColumnEntity, User, Board, BoardUser])],
   controllers: [BoardController],
   providers: [BoardService],
 })
