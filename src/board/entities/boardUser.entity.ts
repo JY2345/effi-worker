@@ -16,6 +16,7 @@ import { User } from 'src/user/entities/user.entity';
   name: 'board',
 })
 export class BoardUser {
+  [x: string]: any;
   @PrimaryGeneratedColumn()
   id: bigint;
 

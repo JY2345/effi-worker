@@ -16,10 +16,11 @@ import { User } from 'src/user/entities/user.entity';
   name: 'board',
 })
 export class Board {
+  [x: string]: any;
   @PrimaryGeneratedColumn()
   id: bigint;
 
-  @Column({ type: 'int', name: 'userId', nullable: false })
+  @Column({ type: 'int', unsigned: true, name: 'userId', nullable: false })
   userId: number;
 
   @Column({ type: 'varchar', nullable: false })
