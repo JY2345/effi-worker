@@ -15,10 +15,11 @@ import {
 export class Task {
   @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
-  @Column({ type: 'int', name: 'columnId', nullable: false })
+
+  @Column({ type: 'int', unsigned: true, name: 'columnId', nullable: false })
   columnId: number;
 
-  @Column({ type: 'int', name: 'userId', nullable: false })
+  @Column({ type: 'int', unsigned: true, name: 'userId', nullable: false })
   userId: number;
 
   @Column({ type: 'varchar', nullable: false })
