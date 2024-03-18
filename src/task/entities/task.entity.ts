@@ -1,5 +1,7 @@
-import { ColumnEntity } from 'src/column/entities/column.entity';
 import { User } from 'src/user/entities/user.entity';
+import { ColumnEntity } from 'src/column/entities/column.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
+
 import {
   Column,
   CreateDateColumn,
@@ -10,9 +12,6 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-import { Comment } from 'src/comment/entities/comment.entity';
-
 @Entity('task')
 export class Task {
   @PrimaryGeneratedColumn({ unsigned: true })
@@ -20,37 +19,28 @@ export class Task {
 
   @Column({ type: 'bigint', name: 'columnId', nullable: false })
   columnId: number;
-
   @Column({ type: 'bigint', name: 'userId', nullable: false })
   userId: number;
-
   @Column({ type: 'varchar', nullable: false })
   name: string;
-
   @Column({ type: 'text' })
   info: Date;
 
   @Column({ type: 'varchar', nullable: false })
   color: string;
-
   @Column({ type: 'varchar', nullable: true })
   fileUrl: string;
-
   @Column({ type: 'bigint', nullable: false })
   order: number;
-
   @Column({ type: 'datetime' })
   dueDate: Date;
 
   @CreateDateColumn({ type: 'datetime', nullable: false })
   createdAt: Date;
-
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
-
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
-
   @ManyToOne(() => ColumnEntity, (column) => column.tasks, {
     onDelete: 'CASCADE',
   })
@@ -58,6 +48,5 @@ export class Task {
   column: ColumnEntity;
 
   @ManyToOne(() => User, (user) => user.task, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
   user: User;
 }

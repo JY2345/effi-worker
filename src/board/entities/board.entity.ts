@@ -1,11 +1,12 @@
 import { ColumnEntity } from 'src/column/entities/column.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { BoardUser } from './boardUser.entity';
 import { User } from 'src/user/entities/user.entity';
@@ -32,14 +33,10 @@ export class Board {
   @Column({ type: 'text', nullable: false })
   columnOrder: string;
 
-  @Column({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    nullable: false,
-  })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @Column({ type: 'datetime', nullable: true })
+  @UpdateDateColumn({ type: 'datetime', nullable: true })
   updatedAt?: Date;
 
   @OneToMany(() => ColumnEntity, (column) => column.board)
@@ -49,6 +46,5 @@ export class Board {
   boardUser: BoardUser[];
 
   @ManyToOne(() => User, (user) => user.board, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
   user: User;
 }
