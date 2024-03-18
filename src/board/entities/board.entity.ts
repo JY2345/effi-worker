@@ -28,11 +28,7 @@ export class Board {
   @Column({ type: 'text', nullable: false })
   columnOrder: string;
 
-  @CreateDateColumn({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    nullable: false,
-  })
+  @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'datetime', nullable: true })

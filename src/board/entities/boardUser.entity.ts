@@ -25,11 +25,7 @@ export class BoardUser {
   @Column({ type: 'bigint', name: 'boardId', nullable: false })
   boardId: bigint;
 
-  @CreateDateColumn({
-    type: 'datetime',
-    default: () => 'CURRENT_TIMESTAMP',
-    nullable: false,
-  })
+  @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn({ type: 'datetime', nullable: true })
@@ -43,6 +39,5 @@ export class BoardUser {
   board: Board;
 
   @ManyToOne(() => User, (user) => user.boardUser, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
   user: User;
 }
