@@ -21,7 +21,6 @@ const typeOrmModuleOptions = {
   useFactory: async (
     configService: ConfigService,
   ): Promise<TypeOrmModuleOptions> => ({
-    namingStrategy: new SnakeNamingStrategy(), // 자동으로 DB에 스네이프 케이스로
     type: 'mysql',
     username: configService.get('DB_USERNAME'),
     password: configService.get('DB_PASSWORD'),
@@ -60,3 +59,4 @@ const typeOrmModuleOptions = {
   providers: [AppService],
 })
 export class AppModule {}
+
