@@ -32,8 +32,8 @@ export class Task {
   @Column()
   order: number;
 
-  @Column({ type: 'time' })
-  dueDate: string;
+  @Column({ type: 'datetime' })
+  dueDate: Date;
 
   @CreateDateColumn()
   createdAt: Date;
