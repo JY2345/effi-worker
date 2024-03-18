@@ -1,3 +1,7 @@
+import { User } from 'src/user/entities/user.entity';
+import { ColumnEntity } from 'src/column/entities/column.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
+
 import {
   Column,
   CreateDateColumn,
@@ -19,19 +23,19 @@ export class Task {
   @Column({ unsigned: true })
   userId: number;
 
-  @Column()
+  @Column({ type: 'varchar', nullable: false })
   name: string;
 
   @Column({ type: 'text' })
   info: Date;
 
-  @Column()
+  @Column({ type: 'varchar', nullable: false })
   color: string;
 
-  @Column()
+  @Column({ type: 'varchar', nullable: false })
   fileUrl: string;
 
-  @Column()
+  @Column({ type: 'bigint', nullable: false })
   order: number;
 
   @Column({ type: 'datetime' })
@@ -46,9 +50,11 @@ export class Task {
   @OneToMany(() => Comment, (comment) => comment.task)
   comments: Comment[];
 
-  @ManyToOne(() => Column, (column) => column.tasks, { onDelete: 'CASCADE' })
-  column: Column;
+  @ManyToOne(() => ColumnEntity, (column) => column.tasks, {
+    onDelete: 'CASCADE',
+  })
+  column: ColumnEntity;
 
-  @ManyToOne(() => User, (user) => user.tasks, { onDelete: 'CASCADE' })
+  @ManyToOne(() => User, (user) => user.task, { onDelete: 'CASCADE' })
   user: User;
 }

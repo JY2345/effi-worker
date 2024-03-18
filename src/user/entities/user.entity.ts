@@ -1,5 +1,6 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { BoardUser } from 'src/board/entities/boardUser.entity';
+import { Task } from 'src/task/entities/task.entity';
 import {
   Column,
   CreateDateColumn,
@@ -44,4 +45,6 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.user)
   task: Task[];
+  comment: any;
+  comments: any;
 }

@@ -1,3 +1,4 @@
+import { Task } from 'src/task/entities/task.entity';
 import { User } from 'src/user/entities/user.entity';
 import {
   Column,
@@ -23,13 +24,13 @@ export class Comment {
   @UpdateDateColumn({ type: 'bigint', name: 'updatedAt' })
   updatedAt: number;
 
-  @ManyToOne(() => Task, (task) => task.comment)
+  @ManyToOne(() => Task, (task) => task.comments)
   task: Task;
 
   @Column({ type: 'int', name: 'taskId', select: true, nullable: false })
   taskId: number;
 
-  @ManyToOne(() => User, (user) => user.comment)
+  @ManyToOne(() => User, (user) => user.comments)
   user: User;
 
   @Column({ type: 'int', name: 'userId', select: true, nullable: false })

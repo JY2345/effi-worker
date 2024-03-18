@@ -4,6 +4,7 @@ import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
   name: 'board',
 })
 export class Board {
+  [x: string]: any;
   @PrimaryGeneratedColumn()
   id: bigint;
 
@@ -28,4 +29,5 @@ export class Board {
 
   @Column({ type: 'datetime', nullable: true })
   updatedAt?: Date;
+  columns: any;
 }
