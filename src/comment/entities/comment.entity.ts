@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -25,14 +26,16 @@ export class Comment {
   updatedAt: Date;
 
   @ManyToOne(() => Task, (task) => task.comments)
+  @JoinColumn({ name: 'taskId' })
   task: Task;
 
   @Column({ type: 'int', name: 'taskId', select: true, nullable: false })
   taskId: number;
 
   @ManyToOne(() => User, (user) => user.comment)
+  @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column({ type: 'int', name: 'userId', select: true, nullable: false })
+  @Column({ type: 'int', unsigned: true, name: 'userId', nullable: false })
   userId: number;
 }
