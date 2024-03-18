@@ -6,6 +6,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -17,10 +18,10 @@ export class Task {
   @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
 
-  @Column({ unsigned: true })
+  @Column({ type: 'bigint', name: 'columnId', nullable: false })
   columnId: number;
 
-  @Column({ unsigned: true })
+  @Column({ type: 'bigint', name: 'userId', nullable: false })
   userId: number;
 
   @Column({ type: 'varchar', nullable: false })
@@ -32,7 +33,7 @@ export class Task {
   @Column({ type: 'varchar', nullable: false })
   color: string;
 
-  @Column({ type: 'varchar', nullable: false })
+  @Column({ type: 'varchar', nullable: true })
   fileUrl: string;
 
   @Column({ type: 'bigint', nullable: false })
@@ -41,10 +42,10 @@ export class Task {
   @Column({ type: 'datetime' })
   dueDate: Date;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'datetime', nullable: false })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 
   @OneToMany(() => Comment, (comment) => comment.task)
@@ -53,8 +54,10 @@ export class Task {
   @ManyToOne(() => ColumnEntity, (column) => column.tasks, {
     onDelete: 'CASCADE',
   })
+  @JoinColumn({ name: 'columnId' })
   column: ColumnEntity;
 
   @ManyToOne(() => User, (user) => user.task, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 }
