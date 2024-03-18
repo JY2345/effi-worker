@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { Board } from './board.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity({
   name: 'board',
@@ -18,7 +19,7 @@ export class BoardUser {
   @PrimaryGeneratedColumn()
   id: bigint;
 
-  @Column({ type: 'bigint', nullable: false })
+  @Column({ type: 'bigint', name: 'userId', nullable: false })
   userId: bigint;
 
   @Column({ type: 'bigint', name: 'boardId', nullable: false })
@@ -40,4 +41,8 @@ export class BoardUser {
   @ManyToOne(() => Board, (board) => board.boardUser, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'boardId' })
   board: Board;
+
+  @ManyToOne(() => User, (user) => user.boardUser, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 }
