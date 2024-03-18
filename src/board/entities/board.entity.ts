@@ -13,6 +13,7 @@ import { BoardUser } from './boardUser.entity';
   name: 'board',
 })
 export class Board {
+  [x: string]: any;
   @PrimaryGeneratedColumn()
   id: bigint;
 
@@ -33,10 +34,4 @@ export class Board {
 
   @UpdateDateColumn({ type: 'datetime', nullable: true })
   updatedAt?: Date;
-
-  @OneToMany(() => ColumnEntity, (column) => column.board)
-  columns: ColumnEntity[];
-
-  @OneToMany(() => BoardUser, (boardUser) => boardUser.board)
-  boardUser: BoardUser[];
 }

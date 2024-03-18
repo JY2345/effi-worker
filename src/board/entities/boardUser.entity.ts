@@ -16,6 +16,7 @@ import { User } from 'src/user/entities/user.entity';
   name: 'board',
 })
 export class BoardUser {
+  [x: string]: any;
   @PrimaryGeneratedColumn()
   id: bigint;
 
@@ -30,14 +31,4 @@ export class BoardUser {
 
   @UpdateDateColumn({ type: 'datetime', nullable: true })
   updatedAt?: Date;
-
-  @OneToMany(() => ColumnEntity, (column) => column.board)
-  columns: ColumnEntity[];
-
-  @ManyToOne(() => Board, (board) => board.boardUser, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'boardId' })
-  board: Board;
-
-  @ManyToOne(() => User, (user) => user.boardUser, { onDelete: 'CASCADE' })
-  user: User;
 }
