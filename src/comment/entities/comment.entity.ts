@@ -19,21 +19,19 @@ export class Comment {
   @Column({ type: 'text', name: 'content' })
   content: string;
 
-  @CreateDateColumn({ type: 'bigint', name: 'createdAt' })
-  createdAt: number;
+  @CreateDateColumn({ type: 'datetime', nullable: false })
+  createdAt: Date;
 
-  @UpdateDateColumn({ type: 'bigint', name: 'updatedAt' })
-  updatedAt: number;
+  @UpdateDateColumn({ type: 'datetime', nullable: true })
+  updatedAt: Date;
 
   @ManyToOne(() => Task, (task) => task.comments)
-  @JoinColumn({ name: 'taskId' })
   task: Task;
 
   @Column({ type: 'int', name: 'taskId', select: true, nullable: false })
   taskId: number;
 
   @ManyToOne(() => User, (user) => user.comment)
-  @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column({ type: 'int', name: 'userId', select: true, nullable: false })
