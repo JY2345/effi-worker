@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ColumnModule } from './column/column.module';
-import { TaskModule } from './task/task.module';
-
-@Module({
-  imports: [ColumnModule, TaskModule],
-  controllers: [AppController],
-  providers: [AppService],
-})
-export class AppModule {}
-=======
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -20,12 +6,16 @@ import { BoardModule } from './board/board.module';
 import { CommentModule } from './comment/comment.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
-import { Board } from './board/entities/board.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import Joi from 'joi';
 import { AuthModule } from './auth/auth.module';
+import { ColumnEntity } from './column/entities/column.entity';
+import { BoardUser } from './board/entities/boardUser.entity';
+import { Task } from './task/entities/task.entity';
+import { Board } from './board/entities/board.entity';
+import { Comment } from './comment/entities/comment.entity';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -38,7 +28,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [User, BoardModule, Board],
+    entities: [User, ColumnEntity, BoardUser, Task, Board, Comment],
     synchronize: configService.get('DB_SYNC'),
     logging: true, // row query 출력
   }),
@@ -70,4 +60,3 @@ const typeOrmModuleOptions = {
   providers: [AppService],
 })
 export class AppModule {}
->>>>>>> 63d359fe17b7ad805b057841d22b807b9466f378

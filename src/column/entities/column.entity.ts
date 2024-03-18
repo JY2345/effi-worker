@@ -12,7 +12,9 @@ import {
 import { Board } from '../../board/entities/board.entity';
 import { Task } from '../../task/entities/task.entity';
 
-@Entity('Column')
+@Entity({
+  name: 'columns',
+})
 export class ColumnEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -29,11 +31,11 @@ export class ColumnEntity extends BaseEntity {
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 
-  @OneToMany(() => Task, task => task.column, {
+  @OneToMany(() => Task, (task) => task.column, {
     cascade: true,
   })
   tasks: Task[];
-  
+
   @ManyToOne(() => Board, (board) => board.columns, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'boardId' })
   board: Board;
