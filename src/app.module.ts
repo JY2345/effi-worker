@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { ColumnModule } from './column/column.module';
-import { TaskModule } from './task/task.module';
-
-@Module({
-  imports: [ColumnModule, TaskModule],
-  controllers: [AppController],
-  providers: [AppService],
-})
-export class AppModule {}
-=======
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -25,7 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import Joi from 'joi';
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module';import { TaskModule } from './task/task.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -70,4 +56,3 @@ const typeOrmModuleOptions = {
   providers: [AppService],
 })
 export class AppModule {}
->>>>>>> 63d359fe17b7ad805b057841d22b807b9466f378
