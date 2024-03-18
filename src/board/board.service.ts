@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -35,12 +35,33 @@ export class BoardService {
   }
 
   // 보드 수정
-  async update(createBoardDto: CreateBoardDto, userId: User) {
+  async update(id: bigint, userId: number, createBoardDto: CreateBoardDto) {
     // userTable의 findById같은 아이디 찾는것 가져오기
-    // const user = await this.userService.findbyId(userId)
+    const { name, color, info } = createBoardDto;
+    const board = await this.findById(id);
+    if (board.userId !== userId) {
+      throw new ForbiddenException('수정할 권한이 없습니다.');
+    }
+
+    const updateBoard = await this.boardRepository.save({
+      name,
+      color,
+      info,
+    });
+
+    return updateBoard;
   }
 
   // 보드 삭제
 
   // 보드 초대
+
+  // 보드 아이디 검색 함수
+  async findById(id: bigint) {
+    const board = await this.boardRepository.findOne({
+      where: { id },
+    });
+
+    return board;
+  }
 }
