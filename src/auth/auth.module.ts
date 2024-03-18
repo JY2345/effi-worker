@@ -4,7 +4,6 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { UserModule } from 'src/user/user.module';
 import { JwtStrategy } from './jwt.strategy';
-
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt', session: false }), // jwt사용

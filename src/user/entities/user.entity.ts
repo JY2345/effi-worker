@@ -1,6 +1,7 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
 import { BoardUser } from 'src/board/entities/boardUser.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
+import { Task } from 'src/task/entities/task.entity';
 import {
   Column,
   CreateDateColumn,
