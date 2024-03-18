@@ -11,7 +11,7 @@ import {
 } from 'typeorm';
 import { Board } from '../../board/entities/board.entity';
 import { Task } from '../../task/entities/task.entity';
-@Entity('Column')
+@Entity('board_column')
 export class ColumnEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
