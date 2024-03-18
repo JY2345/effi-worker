@@ -53,6 +53,19 @@ export class BoardService {
   }
 
   // 보드 삭제
+  async delete(id: bigint, userId: number) {
+    const board = await this.findById(id);
+    if (board.userId !== userId) {
+      throw new ForbiddenException('삭제할 권한이 없습니다.');
+    }
+
+    await this.boardRepository
+      .createQueryBuilder()
+      .delete()
+      .from(Board)
+      .where('id = :id', { id })
+      .execute();
+  }
 
   // 보드 초대
 

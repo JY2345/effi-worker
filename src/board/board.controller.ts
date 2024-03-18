@@ -58,6 +58,17 @@ export class BoardController {
   }
 
   // 보드 삭제
+  @Delete(':id')
+  async delete(@Param('id') id: bigint /*@UserInfo() user:User, */) {
+    //이건 지울것
+    const user = {
+      id: 1,
+    };
+
+    await this.boardService.delete(id, user.id);
+
+    return { successMessage: '보드 삭제에 성공하였습니다.' };
+  }
 
   // 보드 초대
 }
