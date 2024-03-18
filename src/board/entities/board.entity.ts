@@ -1,6 +1,14 @@
 import { ColumnEntity } from 'src/column/entities/column.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { BoardUser } from './boardUser.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity({
   name: 'board',
@@ -8,6 +16,9 @@ import { BoardUser } from './boardUser.entity';
 export class Board {
   @PrimaryGeneratedColumn()
   id: bigint;
+
+  @Column({ type: 'bigint', name: 'userId', nullable: false })
+  userId: bigint;
 
   @Column({ type: 'varchar', nullable: false })
   name: string;
@@ -36,4 +47,8 @@ export class Board {
 
   @OneToMany(() => BoardUser, (boardUser) => boardUser.board)
   boardUser: BoardUser[];
+
+  @ManyToOne(() => User, (user) => user.board, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 }

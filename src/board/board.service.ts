@@ -1,26 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Board } from './entities/board.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class BoardService {
-  create(createBoardDto: CreateBoardDto) {
-    return 'This action adds a new board';
-  }
+  constructor(
+    @InjectRepository(Board)
+    private readonly boardRepository: Repository<Board>,
+  ) {}
 
-  findAll() {
-    return `This action returns all board`;
-  }
+  async create(createBoardDto: CreateBoardDto) {
+    const { name, color, info } = createBoardDto;
+    // board생성
+    const board = await this.boardRepository.insert({
+      name,
+      color,
+      info,
+    });
 
-  findOne(id: number) {
-    return `This action returns a #${id} board`;
-  }
+    // boardId를 가지고 BoardUser테이블 생성
 
-  update(id: number, updateBoardDto: UpdateBoardDto) {
-    return `This action updates a #${id} board`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} board`;
+    console.log('board => ', board);
   }
 }
