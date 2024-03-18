@@ -17,9 +17,11 @@ import { AuthGuard } from '@nestjs/passport';
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
 
-  // jwt로 인증받은 userId넣기
+  // jwt로 인증하기 @UseGuard(AuthGuard('jwt'))
+  // 인증받은 유저 데려오기 @UserInfo() user:User
   @Post()
   create(@Body() createBoardDto: CreateBoardDto) {
-    return this.boardService.create(createBoardDto);
+    const userId: bigint = BigInt(1);
+    return this.boardService.create(createBoardDto, userId);
   }
 }

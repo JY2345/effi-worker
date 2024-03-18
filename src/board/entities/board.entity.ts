@@ -31,7 +31,7 @@ export class Board {
   info: string;
 
   @Column({ type: 'text', nullable: false })
-  columnOrder: string;
+  columnOrder?: string;
 
   @CreateDateColumn()
   createdAt: Date;

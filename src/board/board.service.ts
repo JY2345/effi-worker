@@ -12,10 +12,11 @@ export class BoardService {
     private readonly boardRepository: Repository<Board>,
   ) {}
 
-  async create(createBoardDto: CreateBoardDto) {
+  async create(createBoardDto: CreateBoardDto, userId: bigint) {
     const { name, color, info } = createBoardDto;
     // board생성
     const board = await this.boardRepository.save({
+      userId,
       name,
       color,
       info,
