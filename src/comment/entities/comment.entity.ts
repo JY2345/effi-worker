@@ -31,7 +31,8 @@ export class Comment {
   @Column({ type: 'int', name: 'taskId', select: true, nullable: false })
   taskId: number;
 
-  @ManyToOne(() => User, (user) => user.comment)
+  @ManyToOne(() => User, (user) => user.comment, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 
   @Column({ type: 'int', name: 'userId', select: true, nullable: false })

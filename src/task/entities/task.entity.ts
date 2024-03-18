@@ -48,5 +48,6 @@ export class Task {
   column: ColumnEntity;
 
   @ManyToOne(() => User, (user) => user.task, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 }

@@ -21,7 +21,7 @@ export class BoardController {
   // 인증받은 유저 데려오기 @UserInfo() user:User
   @Post()
   create(@Body() createBoardDto: CreateBoardDto) {
-    const userId: bigint = BigInt(1);
+    const userId: number = 1;
     return this.boardService.create(createBoardDto, userId);
   }
 }

@@ -19,8 +19,8 @@ export class BoardUser {
   @PrimaryGeneratedColumn()
   id: bigint;
 
-  @Column({ type: 'bigint', name: 'userId', nullable: false })
-  userId: bigint;
+  @Column({ type: 'int', unsigned: true, name: 'userId', nullable: false })
+  userId: number;
 
   @Column({ type: 'bigint', name: 'boardId', nullable: false })
   boardId: bigint;
@@ -39,5 +39,6 @@ export class BoardUser {
   board: Board;
 
   @ManyToOne(() => User, (user) => user.boardUser, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 }

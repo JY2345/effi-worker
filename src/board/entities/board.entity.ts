@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -18,8 +19,8 @@ export class Board {
   @PrimaryGeneratedColumn()
   id: bigint;
 
-  @Column({ type: 'bigint', name: 'userId', nullable: false })
-  userId: bigint;
+  @Column({ type: 'int', name: 'userId', nullable: false })
+  userId: number;
 
   @Column({ type: 'varchar', nullable: false })
   name: string;
@@ -30,7 +31,7 @@ export class Board {
   @Column({ type: 'text', nullable: false })
   info: string;
 
-  @Column({ type: 'text', nullable: false })
+  @Column({ type: 'text', nullable: true })
   columnOrder?: string;
 
   @CreateDateColumn()
@@ -46,5 +47,6 @@ export class Board {
   boardUser: BoardUser[];
 
   @ManyToOne(() => User, (user) => user.board, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
   user: User;
 }
