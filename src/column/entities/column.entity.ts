@@ -11,16 +11,20 @@ import {
 } from 'typeorm';
 import { Board } from '../../board/entities/board.entity';
 import { Task } from '../../task/entities/task.entity';
-@Entity('board_column')
+@Entity('BoardColumn')
 export class ColumnEntity extends BaseEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ unsigned: true })
   id: number;
+
   @Column({ type: 'bigint', nullable: false })
   boardId: number;
+
   @Column({ type: 'varchar', length: 255, nullable: false })
   name: string;
+
   @CreateDateColumn({ type: 'datetime', nullable: false })
   createdAt: Date;
+
   @UpdateDateColumn({ type: 'datetime', nullable: false })
   updatedAt: Date;
 

@@ -1,11 +1,11 @@
 import { IsString, IsNotEmpty } from 'class-validator';
 
-export class UpdateColumnDto {
+export class UpdateColumnOrderDto {
   /**
    * 컬럼 이름
    * @example "To-Do"
    */
   @IsString()
   @IsNotEmpty()
-  readonly name: string;
+  columnOrder: string;
 }
