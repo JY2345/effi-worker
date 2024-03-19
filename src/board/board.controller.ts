@@ -94,7 +94,10 @@ export class BoardController {
 
   // 컬럼 순서 변경 저장
   @Patch('column-order/:id')
-  async updateColumnOrder(@Param('id') id: number, @Body() updateColumnOrderDto: UpdateColumnOrderDto) {
+  async updateColumnOrder(
+    @Param('id') id: number,
+    @Body() updateColumnOrderDto: UpdateColumnOrderDto,
+  ) {
     return this.boardService.updateColumnOrder(+id, updateColumnOrderDto);
   }
 }
