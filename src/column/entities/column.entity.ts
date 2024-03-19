@@ -13,7 +13,7 @@ import { Board } from '../../board/entities/board.entity';
 import { Task } from '../../task/entities/task.entity';
 @Entity('board_column')
 export class ColumnEntity extends BaseEntity {
-  @PrimaryGeneratedColumn({ unsigned: true })
+  @PrimaryGeneratedColumn()
   id: number;
   @Column({ type: 'bigint', nullable: false })
   boardId: number;
