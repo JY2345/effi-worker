@@ -1,14 +1,16 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { InviteBoardDto } from './dto/inviteBoard.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { BoardUser } from './entities/boardUser.entity';
+import { ColumnEntity } from 'src/column/entities/column.entity';
 import { number } from 'joi';
 import { UpdateBoardDto } from './dto/update-board.dto';
+import { UpdateColumnOrderDto } from './dto/update-column-order.dto';
 
 @Injectable()
 export class BoardService {
@@ -17,6 +19,8 @@ export class BoardService {
     private readonly boardRepository: Repository<Board>,
     @InjectRepository(BoardUser)
     private readonly boardUserRepository: Repository<BoardUser>,
+    @InjectRepository(ColumnEntity)
+    private readonly columnRepository: Repository<ColumnEntity>,
   ) {}
 
   // board생성
@@ -132,4 +136,36 @@ export class BoardService {
 
     return board;
   }
+
+  // ColumnOrder 업데이트
+  async updateColumnOrder(boardId: number, updateColumnOrderDto: UpdateColumnOrderDto): Promise<Board> {
+    
+    const board = await this.boardRepository.findOneBy({ id: BigInt(boardId) });
+    if (!board) {
+      throw new NotFoundException("존재하지 않는 보드입니다.");
+    }
+  
+    try {
+      const columnOrderArray = JSON.parse(updateColumnOrderDto.columnOrder);
+      
+      if (!Array.isArray(columnOrderArray)) {
+        throw new BadRequestException('컬럼 순서 저장 오류가 발생했습니다.');
+      }
+
+      const columnIds = await this.columnRepository.find({
+        where: { id: In(columnOrderArray) }
+      });
+  
+      board.columnOrder = updateColumnOrderDto.columnOrder;
+      await this.boardRepository.save(board);
+  
+      return board;
+    } catch (error) {
+      if (error instanceof SyntaxError) {
+        throw new BadRequestException('제공된 컬럼 순서가 유효한 JSON 형식이 아닙니다.');
+      }
+      throw new BadRequestException('서버 에러가 발생했습니다.');
+    }
+  }
+  
 }
