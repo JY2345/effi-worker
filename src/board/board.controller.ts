@@ -13,6 +13,7 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { InviteBoardDto } from './dto/inviteBoard.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/entities/user.entity';
+import { UpdateBoardDto } from './dto/update-board.dto';
 
 // jwt로 인증하기 @UseGuard(AuthGuard('jwt'))
 @Controller('board')
@@ -40,17 +41,18 @@ export class BoardController {
   }
 
   // 보드 수정
+  /*@UserInfo() user:User, */
   @Patch(':id')
   async update(
     @Param('id') id: bigint,
-    /*@UserInfo() user:User, */ createBoardDto: CreateBoardDto,
+    @Body() updateBoardDto: UpdateBoardDto,
   ) {
     //이건 지울것
     const user = {
       id: 1,
     };
 
-    const board = await this.boardService.update(id, user.id, createBoardDto);
+    const board = await this.boardService.update(id, user.id, updateBoardDto);
     return {
       successMessage: '보드 수정에 성공하였습니다.',
       board,
@@ -62,7 +64,7 @@ export class BoardController {
   async delete(@Param('id') id: bigint /*@UserInfo() user:User, */) {
     //이건 지울것
     const user = {
-      id: 1,
+      id: 2,
     };
 
     await this.boardService.delete(id, user.id);
@@ -74,7 +76,7 @@ export class BoardController {
   @Post(':id')
   async invite(
     @Param('id') id: bigint,
-    /*@UserInfo() user:User, */ inviteBoardDto: InviteBoardDto,
+    /*@UserInfo() user:User, */ @Body() inviteBoardDto: InviteBoardDto,
   ) {
     //이건 지울것
     const user = {

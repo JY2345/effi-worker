@@ -8,6 +8,7 @@ import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { BoardUser } from './entities/boardUser.entity';
 import { number } from 'joi';
+import { UpdateBoardDto } from './dto/update-board.dto';
 
 @Injectable()
 export class BoardService {
@@ -38,21 +39,26 @@ export class BoardService {
   }
 
   // 보드 수정
-  async update(id: bigint, userId: number, createBoardDto: CreateBoardDto) {
+  async update(id: bigint, userId: number, updateBoardDto: UpdateBoardDto) {
     // userTable의 findById같은 아이디 찾는것 가져오기
-    const { name, color, info } = createBoardDto;
+    const { name, color, info } = updateBoardDto;
+
     const board = await this.findById(id);
+
     if (board.userId !== userId) {
       throw new ForbiddenException('수정할 권한이 없습니다.');
     }
 
-    const updateBoard = await this.boardRepository.save({
-      name,
-      color,
-      info,
-    });
+    await this.boardRepository.update(
+      { id },
+      {
+        name,
+        color,
+        info,
+      },
+    );
 
-    return updateBoard;
+    return await this.findById(id);
   }
 
   // 보드 삭제
@@ -78,7 +84,23 @@ export class BoardService {
       throw new ForbiddenException('초대할 권한이 없습니다.');
     }
 
+    const boards = await this.boardUserRepository.find({
+      select: ['userId'],
+      where: { boardId: id },
+    });
+
     inviteId.push(userId);
+
+    const invitedUserId = boards.map((board) => {
+      return board.userId;
+    });
+    console.log('invitedUserId => ', invitedUserId);
+
+    for (let i = inviteId.length - 1; i >= 0; i--) {
+      if (invitedUserId.includes(inviteId[i])) {
+        inviteId.splice(i, 1);
+      }
+    }
 
     const InsertData = inviteId.map((inviteUserNum) => ({
       boardId: id,
@@ -105,6 +127,8 @@ export class BoardService {
     const board = await this.boardRepository.findOne({
       where: { id },
     });
+    console.log('id => ', id);
+    console.log('board => ', board);
 
     return board;
   }
