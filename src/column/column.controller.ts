@@ -6,7 +6,6 @@ import {
   Patch,
   Param,
   Delete,
-  Query,
 } from '@nestjs/common';
 import { ColumnService } from './column.service';
 import { CreateColumnDto } from './dto/create-column.dto';
