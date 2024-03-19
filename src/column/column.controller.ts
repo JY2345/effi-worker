@@ -11,8 +11,11 @@ import { ColumnService } from './column.service';
 import { CreateColumnDto } from './dto/create-column.dto';
 import { UpdateColumnDto } from './dto/update-column.dto';
 import { ColumnEntity } from './entities/column.entity';
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger'
+@ApiTags('예약 정보')
 
 @Controller('column')
+@ApiBearerAuth('access-token')
 export class ColumnController {
   constructor(private readonly columnService: ColumnService) {}
 
