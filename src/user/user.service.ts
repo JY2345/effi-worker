@@ -39,7 +39,7 @@ export class UserService {
   }
 
   async updateUser(id: number, updateUserDto: UpdateUserDto) {
-    const { name, password } = updateUserDto;
+    const { name, password, newPassword } = updateUserDto;
     // 1)유저 찾기
     const user = await this.userRepository.findOneBy({ id });
 
@@ -52,10 +52,10 @@ export class UserService {
     if (!passwordCheck)
       throw new BadRequestException('비밀번호가 일치하지 않습니다');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    user.name = name;
-    user.password = hashedPassword;
+    // user.name = name;
+    // user.password = hashedPassword;
 
     // 3)데이터수정
     await this.userRepository.update(
