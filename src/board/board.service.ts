@@ -1,14 +1,21 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { InviteBoardDto } from './dto/inviteBoard.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
-import { Repository } from 'typeorm';
+import { FindOperator, In, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { BoardUser } from './entities/boardUser.entity';
+import { ColumnEntity } from 'src/column/entities/column.entity';
 import { number } from 'joi';
 import { UpdateBoardDto } from './dto/update-board.dto';
+import { UpdateColumnOrderDto } from './dto/update-column-order.dto';
 
 @Injectable()
 export class BoardService {
@@ -17,6 +24,8 @@ export class BoardService {
     private readonly boardRepository: Repository<Board>,
     @InjectRepository(BoardUser)
     private readonly boardUserRepository: Repository<BoardUser>,
+    @InjectRepository(ColumnEntity)
+    private readonly columnRepository: Repository<ColumnEntity>,
   ) {}
 
   // board생성
@@ -129,6 +138,65 @@ export class BoardService {
     });
     console.log('id => ', id);
     console.log('board => ', board);
+
+    return board;
+  }
+
+  // ColumnOrder 업데이트
+  async updateColumnOrder(
+    boardId: number,
+    updateColumnOrderDto: UpdateColumnOrderDto,
+  ): Promise<Board> {
+    let board;
+    try {
+      board = await this.boardRepository.findOneBy({ id: BigInt(boardId) });
+    } catch (error) {
+      throw new BadRequestException('보드 ID가 유효한 숫자 형식이 아닙니다.');
+    }
+
+    if (!board) {
+      throw new NotFoundException('존재하지 않는 보드입니다.');
+    }
+
+    let columnOrderArray: readonly any[] | FindOperator<any>;
+    try {
+      columnOrderArray = JSON.parse(updateColumnOrderDto.columnOrder);
+    } catch (error) {
+      throw new BadRequestException(
+        '제공된 컬럼 순서가 유효한 JSON 형식이 아닙니다.',
+      );
+    }
+
+    if (!Array.isArray(columnOrderArray)) {
+      throw new BadRequestException('컬럼 순서는 배열이어야 합니다.');
+    }
+
+    let columnIds: any[];
+    try {
+      columnIds = await this.columnRepository.find({
+        where: { id: In(columnOrderArray) },
+      });
+    } catch (error) {
+      throw new BadRequestException('컬럼 ID 조회 중 문제가 발생했습니다.');
+    }
+
+    const validColumnIds = columnIds.map((column) => column.id.toString());
+    const isValidColumnOrder = columnOrderArray.every((id) =>
+      validColumnIds.includes(id.toString()),
+    );
+
+    if (!isValidColumnOrder) {
+      throw new BadRequestException('존재하지 않는 컬럼이 지정되었습니다.');
+    }
+
+    board.columnOrder = JSON.stringify(columnOrderArray);
+    try {
+      await this.boardRepository.save(board);
+    } catch (error) {
+      throw new BadRequestException(
+        '보드 정보 업데이트 중 오류가 발생했습니다.',
+      );
+    }
 
     return board;
   }

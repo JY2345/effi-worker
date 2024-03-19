@@ -6,6 +6,6 @@ export class UpdateColumnOrderDto {
    * @example "To-Do"
    */
   @IsString()
-  @IsNotEmpty()
+  @IsNotEmpty({ message: '컬럼 순서를 받아오지 못했습니다.' })
   columnOrder: string;
 }

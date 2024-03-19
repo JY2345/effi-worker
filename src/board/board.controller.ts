@@ -14,6 +14,7 @@ import { InviteBoardDto } from './dto/inviteBoard.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/entities/user.entity';
 import { UpdateBoardDto } from './dto/update-board.dto';
+import { UpdateColumnOrderDto } from './dto/update-column-order.dto';
 
 // jwt로 인증하기 @UseGuard(AuthGuard('jwt'))
 @Controller('board')
@@ -89,5 +90,14 @@ export class BoardController {
     );
 
     return { successMessage: `현재 일잘러 참가 인원 : ${inviteCount}명` };
+  }
+
+  // 컬럼 순서 변경 저장
+  @Patch('column-order/:id')
+  async updateColumnOrder(
+    @Param('id') id: number,
+    @Body() updateColumnOrderDto: UpdateColumnOrderDto,
+  ) {
+    return this.boardService.updateColumnOrder(+id, updateColumnOrderDto);
   }
 }
