@@ -3,11 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { BoardUser } from './boardUser.entity';
+import { User } from 'src/user/entities/user.entity';
 
 @Entity({
   name: 'board',
@@ -15,6 +18,9 @@ import { BoardUser } from './boardUser.entity';
 export class Board {
   @PrimaryGeneratedColumn()
   id: bigint;
+
+  @Column({ type: 'int', unsigned: true, name: 'userId', nullable: false })
+  userId: number;
 
   @Column({ type: 'varchar', nullable: false })
   name: string;
@@ -25,8 +31,8 @@ export class Board {
   @Column({ type: 'text', nullable: false })
   info: string;
 
-  @Column({ type: 'text', nullable: false })
-  columnOrder: string;
+  @Column({ type: 'text', nullable: true })
+  columnOrder?: string;
 
   @CreateDateColumn()
   createdAt: Date;
@@ -39,4 +45,8 @@ export class Board {
 
   @OneToMany(() => BoardUser, (boardUser) => boardUser.board)
   boardUser: BoardUser[];
+
+  @ManyToOne(() => User, (user) => user.board, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
 }
