@@ -23,7 +23,7 @@ export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
   @UseGuards(AuthGuard('jwt'))
-  @Post()
+  @Post('create')
   async create(@UserInfo() user: User, @Body() createTaskDto: CreateTaskDto) {
     const data = await this.taskService.createTask(user.id, createTaskDto);
 
