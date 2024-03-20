@@ -13,7 +13,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 @Entity('task')
 export class Task {
   @PrimaryGeneratedColumn({ unsigned: true })
@@ -69,6 +69,7 @@ export class Task {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @Column({ type: 'enum', enum: Worker, nullable: true })
+  @IsEnum(Worker)
+  @Column({ type: 'enum', enum: Worker, nullable: true, default: Worker.User })
   worker: Worker;
 }
