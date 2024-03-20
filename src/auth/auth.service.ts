@@ -3,12 +3,16 @@ import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
+import { MailerService } from 'src/mailer/mailer.service';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private dataSource: DataSource,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
+    private readonly mailerService: MailerService,
   ) {}
 
   /**
@@ -80,15 +84,29 @@ export class AuthService {
   }
 
   async registerWithEmail(user: Pick<User, 'email' | 'name' | 'password'>) {
-    // 비번 해쉬, 솔트 자동
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    const newUser = await this.userService.createUser({
-      ...user,
-      password: hashedPassword,
-    });
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction('READ COMMITTED');
+    try {
+      // 비번 해쉬, 솔트 자동
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+      const newUser = await this.userService.createUser({
+        ...user,
+        password: hashedPassword,
+      });
 
-    // 토큰 발급
-    return this.loginUser(newUser);
+      //유저 생성 후 이메일 인증. Trancetion 이기 때문에 생성 먼저 해도 상관없음
+      await this.mailerService.sendEmail(user.email);
+
+      await queryRunner.commitTransaction();
+      // 토큰 발급
+      return this.loginUser(newUser);
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   /** 헤더에서 토큰을 받을 때
