@@ -19,6 +19,7 @@ import { AuthModule } from './auth/auth.module';
 
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsModule } from './notifications/notifications.module';
+import { MailerModule } from './mailer/mailer.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -58,6 +59,7 @@ const typeOrmModuleOptions = {
     UserModule,
     AuthModule,
     NotificationsModule,
+    MailerModule,
   ],
   controllers: [AppController],
   providers: [AppService, NotificationsGateway],
