@@ -102,8 +102,8 @@ export class AuthService {
       // 토큰 발급
       return this.loginUser(newUser);
     } catch (err) {
-      console.log(err);
       await queryRunner.rollbackTransaction();
+      throw err;
     } finally {
       await queryRunner.release();
     }
