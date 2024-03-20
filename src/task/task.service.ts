@@ -49,13 +49,13 @@ export class TaskService {
     return task;
   }
 
-  findAll() {
-    return `This action returns all task`;
-  }
+  // findAll() {
+  //   return `This action returns all task`;
+  // }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
-  }
+  // findOne(id: number) {
+  //   return `This action returns a #${id} task`;
+  // }
 
   // 카드 수정
   async updateTask(

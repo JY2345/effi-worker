@@ -9,63 +9,67 @@ import {
   HttpStatus,
   Request,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { UserInfo } from 'src/user/utils/userInfo.decorator';
+import { User } from 'src/user/entities/user.entity';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('task')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
+  @UseGuards(AuthGuard('jwt'))
   @Post()
-  async create(@Request() req, @Body() createTaskDto: CreateTaskDto) {
-    const userId = req.user.id;
+  async create(@UserInfo() user: User, @Body() createTaskDto: CreateTaskDto) {
+    const data = await this.taskService.createTask(user.id, createTaskDto);
 
-    const data = await this.taskService.createTask(userId, createTaskDto);
     return {
-      stausCode: HttpStatus.CREATED,
+      statusCode: HttpStatus.CREATED,
       message: '카드 생성에 성공했습니다.',
       data,
     };
   }
 
-  @Get()
-  async findAll() {
-    return await this.taskService.findAll();
-  }
+  // @UseGuards(AuthGuard('jwt'))
+  // @Get()
+  // async findAll() {
+  //   return await this.taskService.findAll();
+  // }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.taskService.findOne(+id);
-  }
+  // @UseGuards(AuthGuard('jwt'))
+  // @Get(':id')
+  // async findOne(@Param('id') id: string) {
+  //   return await this.taskService.findOne(+id);
+  // }
 
   // 카드 수정
+  @UseGuards(AuthGuard('jwt'))
   @Patch(':id')
   async update(
+    @UserInfo() user: User,
     @Param('id') id: number,
-    @Request() req,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
-    const userId = req.user.id;
-
-    const data = await this.taskService.updateTask(userId, +id, updateTaskDto);
+    const data = await this.taskService.updateTask(+id, user.id, updateTaskDto);
 
     return {
-      stausCode: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: '카드 수정에 성공했습니다.',
       data,
     };
   }
 
   // 카드 삭제
+  @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async remove(@Param('id') id: number, @Request() req) {
-    const userId = req.user.id;
-
-    const data = await this.taskService.removeTask(userId, +id);
+  async remove(@UserInfo() user: User, @Param('id') id: number) {
+    const data = await this.taskService.removeTask(+id, user.id);
     return {
-      stausCode: HttpStatus.OK,
+      statusCode: HttpStatus.OK,
       message: '카드 삭제에 성공했습니다.',
       data,
     };

@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from './entities/task.entity';
 import { User } from 'src/user/entities/user.entity';
 import { ColumnEntity } from 'src/column/entities/column.entity';
+import { Comment } from 'src/comment/entities/comment.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Task, User, ColumnEntity, Comment])],
