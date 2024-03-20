@@ -25,27 +25,8 @@ export class MailerController {
   async checkEncryptMessage(@Res() res: Response, @Query('q') q: string) {
     const token = decodeURIComponent(q);
     const verificationStatus = await this.mailerService.checkToken(token);
-
-    switch (verificationStatus) {
-      case 'success':
-        res.send('이메일 주소가 성공적으로 확인되었습니다.');
-        break;
-      case 'expired':
-        res.send(
-          '이메일 확인이 만료되었습니다. 새로운 확인 이메일을 요청하십시오.',
-        );
-        break;
-      case 'no exists':
-        res.send('일치하는 사용자가 없습니다.');
-        break;
-      case 'token no exists':
-        res.send(
-          '토큰이 없거나 만료되었습니다. 새로운 확인 이메일을 요청하십시오.',
-        );
-        break;
-      default:
-        res.send('인증 오류가 발생했습니다.');
-        break;
-    }
+    const responseMessage =
+      this.mailerService.handleResponsePage(verificationStatus);
+    res.send(responseMessage);
   }
 }

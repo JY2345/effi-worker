@@ -104,10 +104,12 @@ export class MailerService {
   }
 
   async checkToken(token: string) {
+    //토큰 만료시간
     const EXPIRED_TIME = 1000 * 10;
     const NOW = +new Date();
     const hasTokenInStore = checkMailMap.has(token);
     const tokenInfo = checkMailMap.get(token);
+    // 상태값으로 보내기 위해
     let flag: string = '';
     if (hasTokenInStore) {
       const { email, token, time, resolver } = tokenInfo;
@@ -116,8 +118,7 @@ export class MailerService {
         flag = 'expired';
       }
       console.log('토큰 일치');
-      console.log('checkMailMap', checkMailMap);
-
+      // DB에 입력한 이메일과 일치하는 유저 있나 확인
       const user = await this.userService.findByEmail(email);
 
       if (user) {
@@ -129,6 +130,7 @@ export class MailerService {
     } else {
       flag = 'token no exists';
     }
+    // 토큰 삭제
     checkMailMap.delete(token);
     return flag;
   }
@@ -142,5 +144,20 @@ export class MailerService {
       .toString();
     console.log('Generated token:', token); // 토큰 값 확인
     return token;
+  }
+
+  handleResponsePage(status: string): string {
+    switch (status) {
+      case 'success':
+        return '이메일 주소가 성공적으로 확인되었습니다.';
+      case 'expired':
+        return '이메일 확인이 만료되었습니다. 새로운 확인 이메일을 요청하십시오.';
+      case 'no exists':
+        return '일치하는 사용자가 없습니다.';
+      case 'token no exists':
+        return '토큰이 없거나 만료되었습니다. 새로운 확인 이메일을 요청하십시오.';
+      default:
+        return '인증 오류가 발생했습니다.';
+    }
   }
 }
