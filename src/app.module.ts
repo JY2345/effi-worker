@@ -19,6 +19,8 @@ import { AuthModule } from './auth/auth.module';
 
 import { NotificationsGateway } from './notifications/notifications.gateway';
 import { NotificationsModule } from './notifications/notifications.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -58,7 +60,11 @@ const typeOrmModuleOptions = {
     UserModule,
     AuthModule,
     NotificationsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client/build'),
+    }),
   ],
+  
   controllers: [AppController],
   providers: [AppService, NotificationsGateway],
 })

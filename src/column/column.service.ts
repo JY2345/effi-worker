@@ -38,9 +38,7 @@ export class ColumnService {
   async findAllColumnsInBoard(boardId: number): Promise<ColumnEntity[]> {
     const board = await this.boardRepository.findOneBy({ id: BigInt(boardId) });
     if (!board) {
-      throw new NotFoundException(
-        '존재하지 않는 보드입니다.',
-      );
+      throw new NotFoundException('존재하지 않는 보드입니다.');
     }
 
     if (board.columnOrder && board.columnOrder.length > 0) {

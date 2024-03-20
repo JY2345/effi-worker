@@ -20,7 +20,6 @@ import { AuthGuard } from '@nestjs/passport';
 export class ColumnController {
   constructor(private readonly columnService: ColumnService) {}
 
-  
   @UseGuards(AuthGuard('jwt'))
   @Post('create-column')
   create(@Body() createColumnDto: CreateColumnDto): Promise<ColumnEntity> {
