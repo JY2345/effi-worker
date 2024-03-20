@@ -1,4 +1,11 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateColumnDto } from './create-column.dto';
+import { IsString, IsNotEmpty } from 'class-validator';
 
-export class UpdateColumnDto extends PartialType(CreateColumnDto) {}
+export class UpdateColumnDto {
+  /**
+   * 컬럼 이름
+   * @example "To-Do"
+   */
+  @IsString()
+  @IsNotEmpty()
+  readonly name: string;
+}

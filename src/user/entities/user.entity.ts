@@ -1,4 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { Board } from 'src/board/entities/board.entity';
 import { BoardUser } from 'src/board/entities/boardUser.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { Task } from 'src/task/entities/task.entity';
@@ -27,7 +28,7 @@ export class User {
 
   @IsString()
   @IsNotEmpty({ message: '비밀번호를 입력해주세요.' })
-  @Column({ type: 'varchar', select: false, nullable: false })
+  @Column({ type: 'varchar', nullable: false })
   password: string;
 
   @IsString()
@@ -49,4 +50,7 @@ export class User {
 
   @OneToMany(() => Task, (task) => task.user)
   task: Task[];
+
+  @OneToMany(() => Board, (board) => board.user)
+  board: Board[];
 }
