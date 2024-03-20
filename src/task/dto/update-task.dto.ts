@@ -1,4 +1,10 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateTaskDto } from './create-task.dto';
+import { PickType } from '@nestjs/mapped-types';
 
-export class UpdateTaskDto extends PartialType(CreateTaskDto) {}
+import { Task } from '../entities/task.entity';
+
+export class UpdateTaskDto extends PickType(Task, [
+  'name',
+  'info',
+  'color',
+  'worker',
+]) {}
