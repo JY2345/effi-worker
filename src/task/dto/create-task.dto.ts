@@ -6,4 +6,5 @@ export class CreateTaskDto extends PickType(Task, [
   'name',
   'info',
   'color',
+  'dueDate',
 ]) {}

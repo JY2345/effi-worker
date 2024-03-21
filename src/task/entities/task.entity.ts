@@ -50,8 +50,10 @@ export class Task {
   @Column({ type: 'varchar', nullable: false })
   order: number;
 
-  @Column({ type: 'datetime' })
-  dueDate: Date;
+  @IsString()
+  @IsNotEmpty({ message: '만기일을 입력해주세요' })
+  @Column()
+  dueDate: string;
 
   @CreateDateColumn({ type: 'datetime', nullable: false })
   createdAt: Date;
