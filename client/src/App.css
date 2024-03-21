@@ -36,3 +36,72 @@
     transform: rotate(360deg);
   }
 }
+
+/************************************
+* CSS
+************************************/
+body {
+  font-family: Arial, sans-serif;
+}
+.board {
+  display: flex;
+  width: 300px;
+  flex-direction: column;
+  overflow-x: auto;
+  padding: 20px;
+  background-color: #f0f0f0;
+  height: 100vh;
+  box-sizing: border-box;
+}
+.list {
+  flex: 0 0 auto;
+  margin: 5px;
+  background-color: #e2e4e6;
+  border-radius: 5px;
+  padding: 10px;
+}
+.card {
+  background-color: #fff;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 3px;
+  box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
+}
+.list-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/******
+보드 버튼
+******/
+.add-board-btn {
+  margin-top: 20px;
+  padding: 10px;
+  font-size: 16px;
+  background-color: #4caf50; /* 녹색 */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.add-board-btn:hover {
+  background-color: #45a049;
+}
+.logout-button {
+  position: fixed;
+  top: 20px; right: 20px;
+  z-index: 999;
+  padding: 10px 20px;
+  background-color: #f44336; /* 빨간색 */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.logout-button:hover {
+  background-color: #d32f2f;
+}

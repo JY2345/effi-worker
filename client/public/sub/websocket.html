@@ -1,23 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Notification Test</title>
+  <head>
+    <meta charset="UTF-8" />
+    <title>알람 테스트</title>
     <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', function () {
-            const socket = io('http://localhost:3000'); 
+      document.addEventListener('DOMContentLoaded', function () {
+        const socket = io('http://localhost:3000');
 
-            socket.on('receiveNotification', function (data) {
-                alert('Received notification: ' + data.message);
-            });
-
-            // 테스트 목적으로 서버에 알람 메시지 전송
-            socket.emit('sendNotification', { message: '알람 테스트입니다!' });
+        socket.on('receiveNotification', function (data) {
+          alert('전송받은 메시지 : ' + data.message);
         });
+
+        // 테스트 목적으로 서버에 알람 메시지 전송
+        // socket.emit('sendNotification', { message: '알람 테스트입니다.' });
+      });
     </script>
-</head>
-<body>
-    <h1>Notification Test Client</h1>
-</body>
+  </head>
+  <body>
+    <h1>알람 테스트 클라이언트</h1>
+  </body>
 </html>
