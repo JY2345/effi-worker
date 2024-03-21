@@ -45,8 +45,10 @@ export class Task {
   @Column({ type: 'varchar', nullable: true })
   fileUrl: string;
 
+  @IsString()
+  @IsNotEmpty({ message: '카드 순서를 받아오지 못했습니다.' })
   @Column({ type: 'varchar', nullable: false })
-  order: string;
+  order: number;
 
   @Column({ type: 'datetime' })
   dueDate: Date;
