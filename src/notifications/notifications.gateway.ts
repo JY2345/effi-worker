@@ -1,8 +1,4 @@
-import {
-  WebSocketGateway,
-  SubscribeMessage,
-  WebSocketServer,
-} from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, SubscribeMessage } from '@nestjs/websockets';
 import { Server } from 'socket.io';
 
 @WebSocketGateway()
@@ -11,7 +7,11 @@ export class NotificationsGateway {
   server: Server;
 
   @SubscribeMessage('sendNotification')
-  handleNotification(client: any, payload: string): void {
-    this.server.emit('notification', payload);
+  handleNotification(client: any, payload: any): void {
+    this.server.emit('receiveNotification', payload);
+  }
+
+  sendNotificationToAll(message: string) {
+    this.server.emit('receiveNotification', { message });
   }
 }
