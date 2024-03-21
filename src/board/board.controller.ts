@@ -78,6 +78,12 @@ export class BoardController {
     return { successMessage: `현재 일잘러 참가 인원 : ${inviteCount}명` };
   }
 
+  @Get(':id')
+  async detailBoard(@Param('id') id: bigint, @UserInfo() user: User) {
+    const board = await this.boardService.detailBoard(id, user.id);
+    return { successMessage: `보드 상세조회에 성공하였습니다.`, board };
+  }
+
   // 컬럼 순서 변경 저장
   @Patch('column-order/:id')
   async updateColumnOrder(
