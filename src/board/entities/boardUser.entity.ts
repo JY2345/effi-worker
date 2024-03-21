@@ -1,4 +1,4 @@
-import { ColumnEntity } from 'src/column/entities/column.entity';
+import { ColumnEntity } from '../../column/entities/column.entity';
 import {
   Column,
   CreateDateColumn,
@@ -9,8 +9,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Board } from './board.entity';
-import { User } from 'src/user/entities/user.entity';
+import { Board } from '../entities/board.entity';
+import { User } from '../../user/entities/user.entity';
 
 @Entity({
   name: 'boardUser',
