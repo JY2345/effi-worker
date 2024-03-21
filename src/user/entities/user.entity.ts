@@ -1,8 +1,8 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { Board } from 'src/board/entities/board.entity';
-import { BoardUser } from 'src/board/entities/boardUser.entity';
-import { Comment } from 'src/comment/entities/comment.entity';
-import { Task } from 'src/task/entities/task.entity';
+import { Board } from '../../board/entities/board.entity';
+import { BoardUser } from '../../board/entities/boardUser.entity';
+import { Comment } from '../../comment/entities/comment.entity';
+import { Task } from '../../task/entities/task.entity';
 import {
   Column,
   CreateDateColumn,

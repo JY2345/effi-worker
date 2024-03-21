@@ -1,6 +1,6 @@
-import { User } from 'src/user/entities/user.entity';
-import { ColumnEntity } from 'src/column/entities/column.entity';
-import { Comment } from 'src/comment/entities/comment.entity';
+import { User } from '../../user/entities/user.entity';
+import { ColumnEntity } from '../../column/entities/column.entity';
+import { Comment } from '../../comment/entities/comment.entity';
 import { Worker } from '../types/task.types';
 
 import {
