@@ -2,11 +2,14 @@ name: Illjaler Deployment
 on:
   workflow_dispatch:
   push: # push이벤트가 발생하면서 브랜치가 main일 경우와,
-    branches: [main]
+    branches:
+      - main
+      - board
   pull_request: # pull_request이벤트가 발생하면서 브랜치가 main | dev 인 경우에 workflow가 실행.
     branches:
       - main
       - dev
+      - board
 jobs:
   lint:
     runs-on: ubuntu-latest #우분투 환경에서 작업실행
