@@ -4,6 +4,7 @@ import { AppService } from './app.service';
 import { ColumnModule } from './column/column.module';
 import { BoardModule } from './board/board.module';
 import { CommentModule } from './comment/comment.module';
+import { TaskModule } from './task/task.module';
 import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -61,6 +62,7 @@ const typeOrmModuleOptions = {
     UserModule,
     AuthModule,
     NotificationsModule,
+    TaskModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client/build'),
     }),
