@@ -1,0 +1,60 @@
+name: Illjaler Deployment
+on:
+  workflow_dispatch:
+  push: # push이벤트가 발생하면서 브랜치가 main일 경우와,
+    branches: [main]
+  pull_request: # pull_request이벤트가 발생하면서 브랜치가 main | dev 인 경우에 workflow가 실행.
+    branches:
+      - main
+      - dev
+jobs:
+  lint:
+    runs-on: ubuntu-latest #우분투 환경에서 작업실행
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+    steps:
+      - name: Get Code
+        uses: action/checkout@v3
+      - name: Install NodeJs
+        uses: action/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Install dependencies
+        uses: npm ci
+      - name: Lint Code
+        uses: npm run lint
+  test:
+    needs: lint
+    runs-on: ubuntu-latest #우분투 환경에서 작업실행
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+    steps:
+      - name: Get Code
+        uses: action/checkout@v3
+      - name: Install NodeJs
+        uses: action/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        uses: npm ci
+      - name: Test code
+        run: npm run test
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get code
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        run: npm ci
+      - name: Build website
+        id: build-website
+        run: npm run build
+  deploy:
+    needs: build
+      - name: Deploy
+        run: echo "Deploying..."
