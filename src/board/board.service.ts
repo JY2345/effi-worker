@@ -14,7 +14,7 @@ import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { BoardUser } from './entities/boardUser.entity';
 import { ColumnEntity } from 'src/column/entities/column.entity';
-import { number } from 'joi';
+import { any, number } from 'joi';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { UpdateColumnOrderDto } from './dto/update-column-order.dto';
 
@@ -43,9 +43,23 @@ export class BoardService {
 
   // 보드 조회
   async findAll() {
-    return await this.boardRepository.find({
-      select: ['id', 'name', 'color', 'info', 'createdAt'],
-    });
+    const boards = await this.boardRepository
+      .createQueryBuilder('board')
+      .select([
+        'board.id',
+        'board.name',
+        'board.color',
+        'board.info',
+        'board.createdAt',
+      ])
+      .getRawMany();
+
+    for (let i = 0; i < boards.length; i++) {
+      const userIds = await this.findByInviteId(boards[i].board_id);
+      boards[i].board_userId = JSON.stringify(userIds.sort());
+    }
+
+    return boards;
   }
 
   // 보드 수정
@@ -149,6 +163,8 @@ export class BoardService {
       select: ['userId'],
       where: { boardId: id },
     });
+
+    console.log('boards => ', boards);
 
     return boards.map((board) => {
       return board.userId;
