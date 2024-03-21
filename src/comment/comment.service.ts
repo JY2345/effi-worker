@@ -19,16 +19,16 @@ export class CommentService {
     });
   }
 
-  async create(taskId: number, commentDto: CommentDto) {
+  async create(taskId: number, commentDto: CommentDto, userId: number) {
     const comment = await this.commentRepository.save({
       taskId: taskId,
       content: commentDto.content,
-      userId: 1,
+      userId: userId,
     });
     return comment;
   }
 
-  async update(commentId: number, commentDto: CommentDto) {
+  async update(commentId: number, commentDto: CommentDto, userId: number) {
     const findcomment = await this.commentRepository.find({
       where: {
         id: commentId,
@@ -39,7 +39,7 @@ export class CommentService {
       throw new NotFoundException('해당 댓글을 찾을 수 없습니다.');
     }
 
-    if (findcomment[0].id !== commentId) {
+    if (findcomment[0].id !== userId) {
       throw new Error('본인 댓글만 수정할 수 있습니다.');
     }
 
@@ -49,7 +49,7 @@ export class CommentService {
     );
   }
 
-  async delete(commentId: number) {
+  async delete(commentId: number, userId: number) {
     const findcomment = await this.commentRepository.find({
       where: {
         id: commentId,
@@ -60,7 +60,7 @@ export class CommentService {
       throw new NotFoundException('해당 댓글을 찾을 수 없습니다.');
     }
 
-    if (findcomment[0].id !== commentId) {
+    if (findcomment[0].id !== userId) {
       throw new Error('본인 댓글만 삭제할 수 있습니다.');
     }
 
