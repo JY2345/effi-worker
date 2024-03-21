@@ -1,12 +1,6 @@
-<<<<<<< HEAD
-import { User } from 'src/user/entities/user.entity';
-import { ColumnEntity } from 'src/column/entities/column.entity';
-import { Comment } from 'src/comment/entities/comment.entity';
-=======
 import { User } from '../../user/entities/user.entity';
 import { ColumnEntity } from '../../column/entities/column.entity';
 import { Comment } from '../../comment/entities/comment.entity';
->>>>>>> cab7d82c3f18ef687f213ff121da2733afc90d90
 import { Worker } from '../types/task.types';
 
 import {
