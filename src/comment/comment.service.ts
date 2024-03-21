@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Comment } from './entities/comment.entity';
+import { CommentDto } from './dto/comment.dto';
 
 @Injectable()
 export class CommentService {
@@ -18,16 +19,16 @@ export class CommentService {
     });
   }
 
-  async create(taskId: number, content: string) {
+  async create(taskId: number, commentDto: CommentDto) {
     const comment = await this.commentRepository.save({
       taskId: taskId,
-      content: content,
+      content: commentDto.content,
       userId: 1,
     });
     return comment;
   }
 
-  async update(commentId: number, content: string) {
+  async update(commentId: number, commentDto: CommentDto) {
     const findcomment = await this.commentRepository.find({
       where: {
         id: commentId,
@@ -44,7 +45,7 @@ export class CommentService {
 
     return await this.commentRepository.update(
       { id: commentId },
-      { content: content },
+      { content: commentDto.content },
     );
   }
 

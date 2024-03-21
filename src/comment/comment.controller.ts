@@ -8,6 +8,7 @@ import {
   Delete,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
+import { CommentDto } from './dto/comment.dto';
 
 @Controller('comment')
 export class CommentController {
@@ -21,9 +22,9 @@ export class CommentController {
   @Post('/:taskId')
   async createComment(
     @Param('taskId') taskId: number,
-    @Body() content: string,
+    @Body() commentDto: CommentDto,
   ) {
-    const comment = await this.commentService.create(taskId, content);
+    const comment = await this.commentService.create(taskId, commentDto);
 
     if (comment) {
       return { message: '댓글 생성 완료', comment };
@@ -33,9 +34,9 @@ export class CommentController {
   @Patch('/:commentId')
   async updateComment(
     @Param('commentId') commentId: number,
-    @Body() content: string,
+    @Body() commentDto: CommentDto,
   ) {
-    const comment = await this.commentService.update(commentId, content);
+    const comment = await this.commentService.update(commentId, commentDto);
 
     return { message: '댓글 수정 완료', comment };
   }
