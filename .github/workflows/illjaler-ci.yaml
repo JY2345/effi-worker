@@ -30,7 +30,7 @@ jobs:
         if: steps.cache.outputs.cache-hit != 'true' # steps: 현재 단계 컨텍스트에 접근, cache:Cache dependencies의 고유 id, outputs.cache-hit: 출력값을 가져와서 true인지 아닌지 판별, true가 아니라면 package-lock.json 파일을 통해 정확한 종속성을 설치
         run: npm ci
       - name: Lint Code
-        uses: npm run lint
+        run: npm run lint
   test:
     needs: lint
     runs-on: ubuntu-latest #우분투 환경에서 작업실행
