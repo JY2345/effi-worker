@@ -8,14 +8,20 @@ import { UserModule } from './user/user.module';
 import { User } from './user/entities/user.entity';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import Joi from 'joi';
-import { AuthModule } from './auth/auth.module';
 import { ColumnEntity } from './column/entities/column.entity';
 import { BoardUser } from './board/entities/boardUser.entity';
 import { Task } from './task/entities/task.entity';
 import { Board } from './board/entities/board.entity';
 import { Comment } from './comment/entities/comment.entity';
+
+import { AuthModule } from './auth/auth.module';
+
+import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsModule } from './notifications/notifications.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { MailerModule } from './mailer/mailer.module';
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -54,8 +60,14 @@ const typeOrmModuleOptions = {
     CommentModule,
     UserModule,
     AuthModule,
+    NotificationsModule,
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client/build'),
+    }),
+    MailerModule,
   ],
+
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, NotificationsGateway],
 })
 export class AppModule {}

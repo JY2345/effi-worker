@@ -27,11 +27,36 @@ export class ColumnService {
     return this.columnRepository.save(createColumnDto);
   }
 
+  async findColumnOrder(boardId: number): Promise<number[]> {
+    const board = await this.boardRepository.findOneBy({ id: BigInt(boardId) });
+    if (!board) {
+      throw new NotFoundException('존재하지 않는 보드입니다.');
+    }
+    return JSON.parse(board.columnOrder);
+  }
+
   async findAllColumnsInBoard(boardId: number): Promise<ColumnEntity[]> {
-    return this.columnRepository.find({
-      where: { boardId: boardId },
-      select: ['boardId', 'name'],
-    });
+    const board = await this.boardRepository.findOneBy({ id: BigInt(boardId) });
+    if (!board) {
+      throw new NotFoundException('존재하지 않는 보드입니다.');
+    }
+
+    if (board.columnOrder && board.columnOrder.length > 0) {
+      const columnOrderArray = JSON.parse(board.columnOrder);
+      const orderedQuery = this.columnRepository
+        .createQueryBuilder('column')
+        .where('column.boardId = :boardId', { boardId })
+        .orderBy(`FIELD(column.id, ${columnOrderArray.join(',')})`);
+
+      return await orderedQuery.getMany();
+    } else {
+      const defaultQuery = this.columnRepository
+        .createQueryBuilder('column')
+        .where('column.boardId = :boardId', { boardId })
+        .orderBy('column.id', 'ASC');
+
+      return await defaultQuery.getMany();
+    }
   }
 
   findOne(id: number) {
