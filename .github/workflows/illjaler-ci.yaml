@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Get Code
         uses: action/checkout@v3 # github action의 checkout액션을 사용하여 현재 프로젝트의 코드를 가져옴. 레포지토리는 action/checkout
+        with:
+          token: ${{ secrets.YOUR_CUSTOM_GITHUB_TOKEN }}
       - name: Install NodeJs
         uses: action/setup-node@v3 # node의 버전을 설정함. 레포지토리는 action/setup-node
         with:
