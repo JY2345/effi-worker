@@ -25,7 +25,7 @@ export class TaskService {
 
   async createTask(
     userId: number,
-    { columnId, name, info, color }: CreateTaskDto,
+    { columnId, name, info, color, dueDate }: CreateTaskDto,
   ) {
     // const { columnId, name, info, color } = createTaskDto;
 
@@ -40,6 +40,19 @@ export class TaskService {
       throw new BadRequestException('컬럼이 존재하지 않습니다.');
     }
 
+    const pattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!pattern.test(dueDate)) {
+      throw new BadRequestException(
+        "날짜 형식이 유효하지 않습니다. 'YYYY-MM-DD' 형식으로 입력해주세요.",
+      );
+    }
+
+    const newDueDate = new Date(dueDate);
+
+    if (isNaN(newDueDate.getTime())) {
+      throw new BadRequestException('유효한 날짜 형식이 아닙니다.');
+    }
+
     // 카드 생성
     const task = await this.taskRepository.save({
       userId,
@@ -47,6 +60,7 @@ export class TaskService {
       name,
       info,
       color,
+      dueDate,
     });
 
     return task;
@@ -106,7 +120,7 @@ export class TaskService {
   async updateTask(
     id: number,
     userId: number,
-    { name, info, color, worker }: UpdateTaskDto,
+    { name, info, color, worker, dueDate }: UpdateTaskDto,
   ) {
     // const { name, info, color, worker } = updateTaskDto;
 
@@ -131,11 +145,25 @@ export class TaskService {
       }
     }
 
+    const pattern = /^\d{4}-\d{2}-\d{2}$/;
+    if (!pattern.test(dueDate)) {
+      throw new BadRequestException(
+        "날짜 형식이 유효하지 않습니다. 'YYYY-MM-DD' 형식으로 입력해주세요.",
+      );
+    }
+
+    const newDueDate = new Date(dueDate);
+
+    if (isNaN(newDueDate.getTime())) {
+      throw new BadRequestException('유효한 날짜 형식이 아닙니다.');
+    }
+
     await this.taskRepository.update(id, {
       name,
       info,
       color,
       worker: task.worker,
+      dueDate,
     });
 
     return this.taskRepository.findOneBy({ id });
@@ -158,7 +186,7 @@ export class TaskService {
   }
 
   // 카드 이동
-  async updateOrder(
+  async updateTaskOrder(
     taskId: number,
     userId: number,
     { newColumnId, newOrder }: MoveTaskDto,

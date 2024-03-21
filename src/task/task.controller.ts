@@ -106,7 +106,11 @@ export class TaskController {
     @Param('id') id: number,
     @Body() moveTaskDto: MoveTaskDto,
   ) {
-    const data = await this.taskService.updateOrder(+id, user.id, moveTaskDto);
+    const data = await this.taskService.updateTaskOrder(
+      +id,
+      user.id,
+      moveTaskDto,
+    );
 
     return {
       statusCode: HttpStatus.OK,
