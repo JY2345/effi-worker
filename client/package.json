@@ -20,7 +20,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "format": "prettier --write .",
-    "lint": "cd client && eslint 'src/**/*.js' --fix"
+    "lint": "eslint 'src/**/*.js' --fix"
   },
   "eslintConfig": {
     "extends": [
