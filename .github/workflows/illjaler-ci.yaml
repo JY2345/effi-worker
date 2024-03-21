@@ -20,7 +20,14 @@ jobs:
         uses: action/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
       - name: Install dependencies
         uses: npm ci
@@ -39,6 +46,15 @@ jobs:
         uses: action/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
       - name: Install dependencies
         uses: npm ci
       - name: Test code
@@ -46,15 +62,33 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
     steps:
-      - name: Get code
-        uses: actions/checkout@v3
+      - name: Get Code
+        uses: action/checkout@v3
+      - name: Install NodeJs
+        uses: action/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm ci
+      - name: Install dependencies
+        uses: npm ci
       - name: Build website
         id: build-website
         run: npm run build
   deploy:
     needs: build
-      - name: Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploying
         run: echo "Deploying..."
