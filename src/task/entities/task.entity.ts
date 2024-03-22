@@ -52,7 +52,7 @@ export class Task {
 
   @IsString()
   @IsNotEmpty({ message: '만기일을 입력해주세요' })
-  @Column()
+  @Column({ nullable: false })
   dueDate: string;
 
   @CreateDateColumn({ type: 'datetime', nullable: false })

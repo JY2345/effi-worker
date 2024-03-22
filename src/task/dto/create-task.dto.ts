@@ -7,4 +7,5 @@ export class CreateTaskDto extends PickType(Task, [
   'info',
   'color',
   'dueDate',
+  'fileUrl',
 ]) {}
