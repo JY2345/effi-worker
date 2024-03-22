@@ -1,10 +1,17 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import * as bcrypt from 'bcrypt';
 import { MailerService } from 'src/mailer/mailer.service';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +20,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
     private readonly mailerService: MailerService,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   /**
@@ -53,6 +62,38 @@ export class AuthService {
       refreshToken: this.signToken(user, true),
     };
   }
+  async registerWithEmail(createUserDto: CreateUserDto) {
+    const { email, name, password } = createUserDto;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const emailExist = await this.userRepository.exists({
+        where: { email },
+      });
+      if (emailExist)
+        throw new BadRequestException('이미 존재하는 email입니다.');
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = this.userRepository.create({
+        email,
+        password: hashedPassword,
+        name,
+      });
+
+      await this.mailerService.sendEmail(email);
+
+      const newUser = await this.userRepository.save(user);
+
+      await queryRunner.commitTransaction();
+      return this.loginUser(newUser);
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async authenticateWithEamilAndPassword(
     user: Pick<User, 'email' | 'password'>,
@@ -81,32 +122,6 @@ export class AuthService {
   async loginWithEmail(user: Pick<User, 'email' | 'password'>) {
     const existingUser = await this.authenticateWithEamilAndPassword(user);
     return this.loginUser(existingUser);
-  }
-
-  async registerWithEmail(user: Pick<User, 'email' | 'name' | 'password'>) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction('READ COMMITTED');
-    try {
-      // 비번 해쉬, 솔트 자동
-      const hashedPassword = await bcrypt.hash(user.password, 10);
-      const newUser = await this.userService.createUser({
-        ...user,
-        password: hashedPassword,
-      });
-
-      //유저 생성 후 이메일 인증. Trancetion 이기 때문에 생성 먼저 해도 상관없음
-      await this.mailerService.sendEmail(user.email);
-
-      await queryRunner.commitTransaction();
-      // 토큰 발급
-      return this.loginUser(newUser);
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
-    }
   }
 
   /** 헤더에서 토큰을 받을 때

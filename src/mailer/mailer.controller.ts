@@ -6,10 +6,10 @@ import { Response } from 'express';
 export class MailerController {
   constructor(private readonly mailerService: MailerService) {}
 
-  @Post('confirm')
-  async emailConfirm(@Body('email') email: string) {
-    return this.mailerService.sendEmail(email);
-  }
+  // @Post('confirm')
+  // async emailConfirm(@Body('email') email: string) {
+  //   return this.mailerService.sendEmail(email,token);
+  // }
 
   @Get('check')
   async checkEncryptMessage(@Res() res: Response, @Query('q') q: string) {
@@ -17,6 +17,7 @@ export class MailerController {
     const verificationStatus = await this.mailerService.checkToken(token);
     const responseMessage =
       this.mailerService.handleResponsePage(verificationStatus);
+
     res.send(responseMessage);
   }
 }

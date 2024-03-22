@@ -69,24 +69,24 @@ export class UserService {
     });
   }
 
-  async createUser(createUserDto: CreateUserDto) {
-    const { email, password, name } = createUserDto;
+  //   async createUser(createUserDto: CreateUserDto) {
+  //     const { email, password, name } = createUserDto;
 
-    // email 존재 여부 exists() -> 해당 값이 있으면 true 반환
-    const emailExist = await this.userRepository.exists({
-      where: { email: createUserDto.email },
-    });
-    if (emailExist) throw new BadRequestException('이미 존재하는 email입니다.');
+  //     // email 존재 여부 exists() -> 해당 값이 있으면 true 반환
+  //     const emailExist = await this.userRepository.exists({
+  //       where: { email: createUserDto.email },
+  //     });
+  //     if (emailExist) throw new BadRequestException('이미 존재하는 email입니다.');
 
-    const user = this.userRepository.create({
-      email,
-      password,
-      name,
-    });
+  //     const user = this.userRepository.create({
+  //       email,
+  //       password,
+  //       name,
+  //     });
 
-    const newUser = await this.userRepository.save(user);
-    return newUser;
-  }
+  //     const newUser = await this.userRepository.save(user);
+  //     return newUser;
+  //   }
 }
 // async login(loginUserDto: LoginUserDto): Promise<any> {
 //   const { email, password } = loginUserDto;
