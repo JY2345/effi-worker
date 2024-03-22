@@ -76,8 +76,9 @@ export class BoardService {
     const { name, color, info } = updateBoardDto;
 
     const board = await this.findById(id);
-
-    if (board.userId !== userId) {
+    if (!board) {
+      throw new NotFoundException('해당 보드가 존재하지 않습니다.');
+    } else if (board.userId !== userId) {
       throw new ForbiddenException('수정할 권한이 없습니다.');
     }
 
@@ -112,7 +113,9 @@ export class BoardService {
     const { inviteId } = inviteUser;
 
     const board = await this.findById(id);
-    if (board.userId !== userId) {
+    if (!board) {
+      throw new NotFoundException('해당 보드가 존재하지 않습니다.');
+    } else if (board.userId !== userId) {
       throw new ForbiddenException('초대할 권한이 없습니다.');
     }
 
