@@ -42,6 +42,15 @@ export class BoardController {
     };
   }
 
+  @Get('myBoard')
+  async findMyBoard(@UserInfo() user: User) {
+    const boards = await this.boardService.findMyBoard(user.id);
+    return {
+      successMessage: '보드 조회에 성공하였습니다.',
+      boards,
+    };
+  }
+
   // 보드 수정
   @Patch(':id')
   async update(

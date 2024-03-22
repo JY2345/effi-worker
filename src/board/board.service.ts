@@ -13,7 +13,7 @@ import { FindOperator, In, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { BoardUser } from './entities/boardUser.entity';
-import { ColumnEntity } from 'src/column/entities/column.entity';
+import { ColumnEntity } from '../column/entities/column.entity';
 import { any, number } from 'joi';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { UpdateColumnOrderDto } from './dto/update-column-order.dto';
@@ -33,12 +33,20 @@ export class BoardService {
   async create(createBoardDto: CreateBoardDto, user: User) {
     const { name, color, info } = createBoardDto;
 
-    return await this.boardRepository.save({
+    const board = await this.boardRepository.save({
       userId: user.id,
       name,
       color,
       info,
     });
+
+    await this.boardUserRepository
+      .createQueryBuilder('boardUser')
+      .insert()
+      .values({ boardId: board.id, userId: board.userId })
+      .execute();
+
+    return board;
   }
 
   // 보드 조회
@@ -62,14 +70,36 @@ export class BoardService {
     return boards;
   }
 
+  // 내 보드 조회
+  async findMyBoard(id: number) {
+    const userBoard: BoardUser[] = await this.boardUserRepository.find({
+      select: ['userId', 'boardId'],
+      where: { userId: id },
+    });
+
+    let myBoard: any[] = [];
+    for (let i = 0; i < userBoard.length; i++) {
+      const board = await this.findById(userBoard[i].boardId);
+      const userIds = await this.findByInviteId(userBoard[i].boardId);
+      const members = JSON.stringify(userIds.sort());
+      myBoard.push({
+        ...board,
+        members,
+      });
+    }
+
+    return myBoard;
+  }
+
   // 보드 수정
   async update(id: bigint, userId: number, updateBoardDto: UpdateBoardDto) {
     // userTable의 findById같은 아이디 찾는것 가져오기
     const { name, color, info } = updateBoardDto;
 
     const board = await this.findById(id);
-
-    if (board.userId !== userId) {
+    if (!board) {
+      throw new NotFoundException('해당 보드가 존재하지 않습니다.');
+    } else if (board.userId !== userId) {
       throw new ForbiddenException('수정할 권한이 없습니다.');
     }
 
@@ -104,11 +134,11 @@ export class BoardService {
     const { inviteId } = inviteUser;
 
     const board = await this.findById(id);
-    if (board.userId !== userId) {
+    if (!board) {
+      throw new NotFoundException('해당 보드가 존재하지 않습니다.');
+    } else if (board.userId !== userId) {
       throw new ForbiddenException('초대할 권한이 없습니다.');
     }
-
-    inviteId.push(userId);
 
     const invitedUserId = await this.findByInviteId(id);
 
@@ -163,8 +193,6 @@ export class BoardService {
       select: ['userId'],
       where: { boardId: id },
     });
-
-    console.log('boards => ', boards);
 
     return boards.map((board) => {
       return board.userId;
