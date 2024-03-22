@@ -52,8 +52,8 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // user.name = name;
-    // user.password = hashedPassword;
+    user.name = name;
+    user.password = hashedPassword;
 
     // 3)데이터수정
     await this.userRepository.update(
