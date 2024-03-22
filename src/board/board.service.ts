@@ -116,8 +116,6 @@ export class BoardService {
       throw new ForbiddenException('초대할 권한이 없습니다.');
     }
 
-    inviteId.push(userId);
-
     const invitedUserId = await this.findByInviteId(id);
 
     for (let i = inviteId.length - 1; i >= 0; i--) {
