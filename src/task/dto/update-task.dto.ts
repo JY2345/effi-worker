@@ -6,7 +6,6 @@ export class UpdateTaskDto extends PickType(Task, [
   'name',
   'info',
   'color',
-  'worker',
   'dueDate',
   'fileUrl',
 ]) {}
