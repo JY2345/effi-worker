@@ -19,9 +19,6 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { UserInfo } from 'src/user/utils/userInfo.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { UpdateTaskOrderDto } from './dto/update-task-order.dto';
-import { MoveTaskDto } from './dto/move-task.dto';
-import { FindAllTaskDto } from './dto/findAll-task.dto';
 
 @Controller('task')
 export class TaskController {
@@ -40,9 +37,6 @@ export class TaskController {
   }
 
   // 카드 목록조회
-
-  // async findAll(@Query() findAllTaskDto: FindAllTaskDto) {
-  //   const data = await this.taskService.findAll(findAllTaskDto);
   @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll(@Query('boardId') boardId: number) {
@@ -98,24 +92,4 @@ export class TaskController {
     };
   }
 
-  // 카드 이동
-  @UseGuards(AuthGuard('jwt'))
-  @Patch('order/:id')
-  async updateOrder(
-    @UserInfo() user: User,
-    @Param('id') id: number,
-    @Body() moveTaskDto: MoveTaskDto,
-  ) {
-    const data = await this.taskService.updateTaskOrder(
-      +id,
-      user.id,
-      moveTaskDto,
-    );
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: '카드 이동에 성공했습니다.',
-      data,
-    };
-  }
 }

@@ -1,10 +1,12 @@
 import { CreateColumnDto } from './dto/create-column.dto';
 import { UpdateColumnDto } from './dto/update-column.dto';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindOperator, In, Repository } from 'typeorm';
 import { ColumnEntity } from './entities/column.entity';
 import { Board } from '../board/entities/board.entity';
+import { Task } from '../task/entities/task.entity';
+import { UpdateTaskOrderDto } from './dto/update-task-order.dto';
 @Injectable()
 export class ColumnService {
   constructor(
@@ -12,6 +14,8 @@ export class ColumnService {
     private columnRepository: Repository<ColumnEntity>,
     @InjectRepository(Board)
     private boardRepository: Repository<Board>,
+    @InjectRepository(Task)
+    private taskRepository: Repository<Task>,
   ) {}
 
   async createColumn(createColumnDto: CreateColumnDto): Promise<ColumnEntity> {
@@ -104,5 +108,64 @@ export class ColumnService {
         name: existingColumn.name,
       },
     };
+  }
+
+  // TaskOrder 업데이트
+  async updateTaskOrder(
+    columnId: number,
+    updateTaskOrderDto: UpdateTaskOrderDto,
+  ): Promise<Board> {
+    let column;
+    try {
+      column = await this.columnRepository.findOneBy({ id: columnId });
+    } catch (error) {
+      throw new BadRequestException('컬럼 ID가 유효한 숫자 형식이 아닙니다.');
+    }
+
+    if (!column) {
+      throw new NotFoundException('존재하지 않는 컬럼입니다.');
+    }
+
+    let taskOrderArray: readonly any[] | FindOperator<any>;
+    try {
+      taskOrderArray = JSON.parse(updateTaskOrderDto.taskOrder);
+    } catch (error) {
+      throw new BadRequestException(
+        '제공된 카드 순서가 유효한 JSON 형식이 아닙니다.',
+      );
+    }
+
+    if (!Array.isArray(taskOrderArray)) {
+      throw new BadRequestException('카드 순서는 배열이어야 합니다.');
+    }
+
+    let taskIds: any[];
+    try {
+      taskIds = await this.taskRepository.find({
+        where: { id: In(taskOrderArray) },
+      });
+    } catch (error) {
+      throw new BadRequestException('카드 ID 조회 중 문제가 발생했습니다.');
+    }
+
+    const validTaskIds = taskIds.map((task) => task.id.toString());
+    const isValidTaskOrder = taskOrderArray.every((id) =>
+      validTaskIds.includes(id.toString()),
+    );
+
+    if (!isValidTaskOrder) {
+      throw new BadRequestException('존재하지 않는 카드가 지정되었습니다.');
+    }
+
+    column.taskOrder = JSON.stringify(taskOrderArray);
+    try {
+      await this.columnRepository.save(column);
+    } catch (error) {
+      throw new BadRequestException(
+        '컬럼 정보 업데이트 중 오류가 발생했습니다.',
+      );
+    }
+
+    return column;
   }
 }

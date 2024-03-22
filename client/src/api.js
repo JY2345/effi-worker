@@ -26,7 +26,7 @@ export const fetchColumnsForBoard = async (boardId) => {
         },
       },
     );
-    return response.data.columns;
+    return response.data;
   } catch (error) {
     console.error('컬럼을 불러오는 데 실패했습니다: ', error);
     throw error;
@@ -50,4 +50,3 @@ export const handleLogin = async (
     if (onLoginFailure) onLoginFailure(error.response.data.message);
   }
 };
-

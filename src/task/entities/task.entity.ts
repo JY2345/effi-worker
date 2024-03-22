@@ -46,14 +46,9 @@ export class Task {
   fileUrl: string;
 
   @IsString()
-  @IsNotEmpty({ message: '카드 순서를 받아오지 못했습니다.' })
-  @Column({ type: 'varchar', nullable: false })
-  order: number;
-
-  @IsString()
   @IsNotEmpty({ message: '만기일을 입력해주세요' })
-  @Column({ nullable: false })
-  dueDate: string;
+  @Column({ type: 'datetime', nullable: false })
+  dueDate: Date;
 
   @CreateDateColumn({ type: 'datetime', nullable: false })
   createdAt: Date;
