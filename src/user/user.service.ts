@@ -7,7 +7,6 @@ import {
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { CreateUserDto } from './dto/create-user.dto';
 import _ from 'lodash';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
@@ -52,8 +51,8 @@ export class UserService {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    // user.name = name;
-    // user.password = hashedPassword;
+    user.name = name;
+    user.password = hashedPassword;
 
     // 3)데이터수정
     await this.userRepository.update(
@@ -68,26 +67,26 @@ export class UserService {
       where: { email },
     });
   }
-
-  //   async createUser(createUserDto: CreateUserDto) {
-  //     const { email, password, name } = createUserDto;
-
-  //     // email 존재 여부 exists() -> 해당 값이 있으면 true 반환
-  //     const emailExist = await this.userRepository.exists({
-  //       where: { email: createUserDto.email },
-  //     });
-  //     if (emailExist) throw new BadRequestException('이미 존재하는 email입니다.');
-
-  //     const user = this.userRepository.create({
-  //       email,
-  //       password,
-  //       name,
-  //     });
-
-  //     const newUser = await this.userRepository.save(user);
-  //     return newUser;
-  //   }
 }
+//   async createUser(createUserDto: CreateUserDto) {
+//     const { email, password, name } = createUserDto;
+
+//     // email 존재 여부 exists() -> 해당 값이 있으면 true 반환
+//     const emailExist = await this.userRepository.exists({
+//       where: { email: createUserDto.email },
+//     });
+//     if (emailExist) throw new BadRequestException('이미 존재하는 email입니다.');
+
+//     const user = this.userRepository.create({
+//       email,
+//       password,
+//       name,
+//     });
+
+//     const newUser = await this.userRepository.save(user);
+//     return newUser;
+//   }
+
 // async login(loginUserDto: LoginUserDto): Promise<any> {
 //   const { email, password } = loginUserDto;
 //   const user = await this.userRepository.findOne({
