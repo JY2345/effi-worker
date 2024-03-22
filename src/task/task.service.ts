@@ -33,6 +33,8 @@ export class TaskService {
         board: true,
       },
     });
+    console.log(column);
+
     if (!column) {
       throw new BadRequestException('컬럼이 존재하지 않습니다.');
     }
