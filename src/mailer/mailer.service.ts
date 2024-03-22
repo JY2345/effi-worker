@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as mailer from 'nodemailer';
 import { UserService } from 'src/user/user.service';
@@ -99,7 +99,10 @@ export class MailerService {
           </html>
       `,
     });
+    // 10 minutes expiration
+
     await promise;
+
     return result;
   }
 
@@ -117,7 +120,6 @@ export class MailerService {
       if (isExpired) {
         flag = 'expired';
       }
-      console.log('토큰 일치');
       // DB에 입력한 이메일과 일치하는 유저 있나 확인
       const user = await this.userService.findByEmail(email);
 
