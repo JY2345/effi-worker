@@ -25,7 +25,7 @@ export class TaskService {
 
   async createTask(
     userId: number,
-    { columnId, name, info, color, dueDate }: CreateTaskDto,
+    { columnId, name, info, color, dueDate, fileUrl }: CreateTaskDto,
   ) {
     // const { columnId, name, info, color } = createTaskDto;
 
@@ -61,6 +61,7 @@ export class TaskService {
       info,
       color,
       dueDate,
+      fileUrl,
     });
 
     return task;
@@ -120,7 +121,7 @@ export class TaskService {
   async updateTask(
     id: number,
     userId: number,
-    { name, info, color, worker, dueDate }: UpdateTaskDto,
+    { name, info, color, worker, dueDate, fileUrl }: UpdateTaskDto,
   ) {
     // const { name, info, color, worker } = updateTaskDto;
 
@@ -164,6 +165,7 @@ export class TaskService {
       color,
       worker: task.worker,
       dueDate,
+      fileUrl,
     });
 
     return this.taskRepository.findOneBy({ id });
