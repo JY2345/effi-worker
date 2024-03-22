@@ -99,7 +99,6 @@ export class MailerService {
           </html>
       `,
     });
-    // 10 minutes expiration
 
     await promise;
 
@@ -108,7 +107,7 @@ export class MailerService {
 
   async checkToken(token: string) {
     //토큰 만료시간
-    const EXPIRED_TIME = 1000 * 10;
+    const EXPIRED_TIME = 1000 * 10 * 10;
     const NOW = +new Date();
     const hasTokenInStore = checkMailMap.has(token);
     const tokenInfo = checkMailMap.get(token);
@@ -119,24 +118,18 @@ export class MailerService {
       const isExpired = NOW - time > EXPIRED_TIME;
       if (isExpired) {
         flag = 'expired';
-      }
-      // DB에 입력한 이메일과 일치하는 유저 있나 확인
-      const user = await this.userService.findByEmail(email);
-
-      if (user) {
-        resolver(true);
-        flag = 'success';
       } else {
-        flag = 'no exists';
+        flag = 'success';
+        resolver(true);
       }
     } else {
       flag = 'token no exists';
     }
     // 토큰 삭제
     checkMailMap.delete(token);
+    console.log('MailerService ~ checkToken ~ flag:', flag);
     return flag;
   }
-
   private makeToken(email: string, sendtime: number) {
     const token = cryptoJs
       .HmacSHA256(

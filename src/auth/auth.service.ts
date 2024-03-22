@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -61,6 +62,38 @@ export class AuthService {
       refreshToken: this.signToken(user, true),
     };
   }
+  async registerWithEmail(createUserDto: CreateUserDto) {
+    const { email, name, password } = createUserDto;
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      const emailExist = await this.userRepository.exists({
+        where: { email },
+      });
+      if (emailExist)
+        throw new BadRequestException('이미 존재하는 email입니다.');
+      const hashedPassword = await bcrypt.hash(password, 10);
+      const user = this.userRepository.create({
+        email,
+        password: hashedPassword,
+        name,
+      });
+
+      await this.mailerService.sendEmail(email);
+
+      const newUser = await this.userRepository.save(user);
+
+      await queryRunner.commitTransaction();
+      return this.loginUser(newUser);
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+      throw err;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async authenticateWithEamilAndPassword(
     user: Pick<User, 'email' | 'password'>,
@@ -89,49 +122,6 @@ export class AuthService {
   async loginWithEmail(user: Pick<User, 'email' | 'password'>) {
     const existingUser = await this.authenticateWithEamilAndPassword(user);
     return this.loginUser(existingUser);
-  }
-
-  async registerWithEmail(createUserDto: CreateUserDto) {
-    const { email, name, password } = createUserDto;
-
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction('READ COMMITTED');
-    try {
-      const emailExist = await this.userRepository.exists({
-        where: { email },
-      });
-      if (emailExist)
-        throw new BadRequestException('이미 존재하는 email입니다.');
-      // 비번 해쉬, 솔트 자동
-      const hashedPassword = await bcrypt.hash(password, 10);
-      // const newUser = await this.createUser({
-      //   ...createUserDto,
-      //   password: hashedPassword,
-      // });
-
-      const user = this.userRepository.create({
-        email,
-        password: hashedPassword,
-        name,
-      });
-
-      // 사용자를 생성하기 전에 이메일을 보냄
-      await this.mailerService.sendEmail(email);
-
-      // 사용자를 저장
-      const newUser = await this.userRepository.save(user);
-      console.log('AuthService ~ registerWithEmail ~ newUser:', newUser);
-
-      await queryRunner.commitTransaction();
-      // 토큰 발급
-      return this.loginUser(newUser);
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw err;
-    } finally {
-      await queryRunner.release();
-    }
   }
 
   /** 헤더에서 토큰을 받을 때

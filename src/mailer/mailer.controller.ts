@@ -17,6 +17,7 @@ export class MailerController {
     const verificationStatus = await this.mailerService.checkToken(token);
     const responseMessage =
       this.mailerService.handleResponsePage(verificationStatus);
+
     res.send(responseMessage);
   }
 }
