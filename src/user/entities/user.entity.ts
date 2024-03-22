@@ -3,7 +3,7 @@ import { Board } from '../../board/entities/board.entity';
 import { BoardUser } from '../../board/entities/boardUser.entity';
 import { Comment } from '../../comment/entities/comment.entity';
 import { Task } from '../../task/entities/task.entity';
-import { TaskUser } from 'src/task/entities/taskUser.entity';
+import { TaskUser } from '../../task/entities/taskUser.entity';
 import {
   Column,
   CreateDateColumn,
