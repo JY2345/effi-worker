@@ -70,6 +70,27 @@ export class BoardService {
     return boards;
   }
 
+  // 내 보드 조회
+  async findMyBoard(id: number) {
+    const userBoard: BoardUser[] = await this.boardUserRepository.find({
+      select: ['userId', 'boardId'],
+      where: { userId: id },
+    });
+
+    let myBoard: any[] = [];
+    for (let i = 0; i < userBoard.length; i++) {
+      const board = await this.findById(userBoard[i].boardId);
+      const userIds = await this.findByInviteId(userBoard[i].boardId);
+      const members = JSON.stringify(userIds.sort());
+      myBoard.push({
+        ...board,
+        members,
+      });
+    }
+
+    return myBoard;
+  }
+
   // 보드 수정
   async update(id: bigint, userId: number, updateBoardDto: UpdateBoardDto) {
     // userTable의 findById같은 아이디 찾는것 가져오기
