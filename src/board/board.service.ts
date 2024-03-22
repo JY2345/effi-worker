@@ -89,10 +89,6 @@ export class BoardService {
     }
 
     return myBoard;
-    // const boards = await this.boardRepository.find({
-    //   select:['id','name','color','info','createdAt'],
-    //   where:{id: userB}
-    // })
   }
 
   // 보드 수정
