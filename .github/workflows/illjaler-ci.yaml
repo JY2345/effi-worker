@@ -11,32 +11,7 @@ on:
       - dev
       - board
 jobs:
-  test:
-    needs: lint
-    runs-on: ubuntu-latest #우분투 환경에서 작업실행
-    strategy:
-      matrix:
-        node-version: [16, 18, 20]
-    steps:
-      - name: Get Code
-        uses: actions/checkout@v3
-      - name: Install NodeJs
-        uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-      - name: Cache dependencies
-        id: cache
-        uses: actions/cache@v3
-        with:
-          path: node_modules
-          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
-      - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: npm ci
-      - name: Test code
-        run: npm run test
   build:
-    needs: test
     runs-on: ubuntu-latest #우분투 환경에서 작업실행
     strategy:
       matrix:
@@ -62,6 +37,30 @@ jobs:
       - name: Build website
         id: build-website
         run: npm run build
+  test:
+    needs: build
+    runs-on: ubuntu-latest #우분투 환경에서 작업실행
+    strategy:
+      matrix:
+        node-version: [16, 18, 20]
+    steps:
+      - name: Get Code
+        uses: actions/checkout@v3
+      - name: Install NodeJs
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: deps-node-modules-${{ hashFiles('**/package-lock.json') }}
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Test code
+        run: npm run test
   deploy:
     needs: build
     runs-on: ubuntu-latest
