@@ -3,6 +3,7 @@ import { Board } from '../../board/entities/board.entity';
 import { BoardUser } from '../../board/entities/boardUser.entity';
 import { Comment } from '../../comment/entities/comment.entity';
 import { Task } from '../../task/entities/task.entity';
+import { TaskUser } from 'src/task/entities/taskUser.entity';
 import {
   Column,
   CreateDateColumn,
@@ -44,6 +45,9 @@ export class User {
 
   @OneToMany(() => BoardUser, (boardUser) => boardUser.user)
   boardUser: BoardUser[];
+
+  @OneToMany(() => TaskUser, (taskUser) => taskUser.user)
+  taskUser: TaskUser[];
 
   @OneToMany(() => Comment, (comment) => comment.user)
   comment: Comment[];
