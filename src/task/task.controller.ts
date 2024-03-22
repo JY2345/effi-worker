@@ -7,11 +7,7 @@ import {
   Param,
   Delete,
   HttpStatus,
-  Request,
-  Req,
   UseGuards,
-  ParseIntPipe,
-  Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -19,9 +15,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { UserInfo } from 'src/user/utils/userInfo.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
-import { UpdateTaskOrderDto } from './dto/update-task-order.dto';
-import { MoveTaskDto } from './dto/move-task.dto';
-import { FindAllTaskDto } from './dto/findAll-task.dto';
+import { AddWorkerTaskDto } from './dto/add-worker-task.dto';
 
 @Controller('task')
 export class TaskController {
@@ -40,14 +34,11 @@ export class TaskController {
   }
 
   // 카드 목록조회
-
-  // async findAll(@Query() findAllTaskDto: FindAllTaskDto) {
-  //   const data = await this.taskService.findAll(findAllTaskDto);
   @UseGuards(AuthGuard('jwt'))
-  @Get()
-  async findAll(@Query('boardId') boardId: number) {
-    console.log(boardId);
-    const data = await this.taskService.findAll(boardId);
+  @Get('get-all/:columnId')
+  async findAll(@Param('columnId') columnId: number) {
+    console.log(columnId);
+    const data = await this.taskService.findAll(columnId);
 
     return {
       statusCode: HttpStatus.OK,
@@ -98,24 +89,20 @@ export class TaskController {
     };
   }
 
-  // 카드 이동
+  // 카드 담당자 추가
   @UseGuards(AuthGuard('jwt'))
-  @Patch('order/:id')
-  async updateOrder(
+  @Post('add-work/:id')
+  async addWorker(
+    @Param('id') id: bigint,
     @UserInfo() user: User,
-    @Param('id') id: number,
-    @Body() moveTaskDto: MoveTaskDto,
+    @Body() addWorkerTaskDto: AddWorkerTaskDto,
   ) {
-    const data = await this.taskService.updateTaskOrder(
-      +id,
+    const workerCount = await this.taskService.addWorkers(
+      id,
       user.id,
-      moveTaskDto,
+      addWorkerTaskDto,
     );
-
-    return {
-      statusCode: HttpStatus.OK,
-      message: '카드 이동에 성공했습니다.',
-      data,
-    };
+    return { successMessage: `현재 해당 Task 작업자 : ${workerCount}명` };
   }
+
 }

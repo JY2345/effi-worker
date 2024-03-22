@@ -12,6 +12,7 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import Joi from 'joi';
 import { ColumnEntity } from './column/entities/column.entity';
 import { BoardUser } from './board/entities/boardUser.entity';
+import { TaskUser } from './task/entities/taskUser.entity';
 import { Task } from './task/entities/task.entity';
 import { Board } from './board/entities/board.entity';
 import { Comment } from './comment/entities/comment.entity';
@@ -34,7 +35,7 @@ const typeOrmModuleOptions = {
     host: configService.get('DB_HOST'),
     port: configService.get('DB_PORT'),
     database: configService.get('DB_NAME'),
-    entities: [User, ColumnEntity, BoardUser, Task, Board, Comment],
+    entities: [User, ColumnEntity, BoardUser, Task, TaskUser, Board, Comment],
     synchronize: configService.get('DB_SYNC'),
     logging: true, // row query 출력
   }),

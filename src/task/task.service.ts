@@ -10,9 +10,10 @@ import { Task } from './entities/task.entity';
 import { Column, Repository } from 'typeorm';
 import { ColumnEntity } from 'src/column/entities/column.entity';
 import { User } from 'src/user/entities/user.entity';
-import { UpdateTaskOrderDto } from './dto/update-task-order.dto';
-import { MoveTaskDto } from './dto/move-task.dto';
+import { TaskUser } from './entities/taskUser.entity';
+import { UpdateTaskOrderDto } from '../column/dto/update-task-order.dto';
 import { FindAllTaskDto } from './dto/findAll-task.dto';
+import { AddWorkerTaskDto } from './dto/add-worker-task.dto';
 
 @Injectable()
 export class TaskService {
@@ -21,6 +22,7 @@ export class TaskService {
     @InjectRepository(ColumnEntity)
     private readonly columnEntityRepository: Repository<ColumnEntity>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(TaskUser) private readonly taskUserRepository: Repository<TaskUser>,
   ) {}
 
   async createTask(
@@ -40,8 +42,9 @@ export class TaskService {
       throw new BadRequestException('컬럼이 존재하지 않습니다.');
     }
 
+
     const pattern = /^\d{4}-\d{2}-\d{2}$/;
-    if (!pattern.test(dueDate)) {
+    if (typeof dueDate !== 'string' || !pattern.test(dueDate)) {
       throw new BadRequestException(
         "날짜 형식이 유효하지 않습니다. 'YYYY-MM-DD' 형식으로 입력해주세요.",
       );
@@ -67,22 +70,6 @@ export class TaskService {
     return task;
   }
 
-  // 카드 전체조회
-  // async findAll({ columnId }: FindAllTaskDto) {
-  //   const tasks = await this.taskRepository.find({
-  //     where: { columnId },
-  //   });
-  //   if (!tasks) {
-  //     throw new NotFoundException('카드를 찾을 수 없습니다.');
-  //   }
-
-  //   return tasks;
-  // }
-
-  // async findAll(): Promise<Task[]> {
-  //   return await this.taskRepository.find();
-  // }
-
   async findAll(boardId: number): Promise<Task[]> {
     const columns = await this.columnEntityRepository.find({
       where: { boardId: boardId },
@@ -94,7 +81,6 @@ export class TaskService {
     const whereArr = columns.map((column) => {
       return { columnId: column.id };
     });
-    console.log(whereArr);
 
     const tasks = await this.taskRepository.find({
       where: whereArr,
@@ -121,7 +107,7 @@ export class TaskService {
   async updateTask(
     id: number,
     userId: number,
-    { name, info, color, worker, dueDate, fileUrl }: UpdateTaskDto,
+    { name, info, color, dueDate, fileUrl }: UpdateTaskDto,
   ) {
     // const { name, info, color, worker } = updateTaskDto;
 
@@ -137,17 +123,8 @@ export class TaskService {
       throw new NotFoundException('카드를 수정할 수 없습니다.');
     }
 
-    // 작업자 할당 수정
-    if (worker !== undefined && worker === task.worker) {
-      if (Object.values(Worker).includes(worker)) {
-        task.worker = worker;
-      } else {
-        throw new NotFoundException('작업자가 존재하지 않습니다.');
-      }
-    }
-
     const pattern = /^\d{4}-\d{2}-\d{2}$/;
-    if (!pattern.test(dueDate)) {
+    if (!pattern.test(dueDate.toISOString().slice(0, 10))) {
       throw new BadRequestException(
         "날짜 형식이 유효하지 않습니다. 'YYYY-MM-DD' 형식으로 입력해주세요.",
       );
@@ -163,7 +140,6 @@ export class TaskService {
       name,
       info,
       color,
-      worker: task.worker,
       dueDate,
       fileUrl,
     });
@@ -187,58 +163,49 @@ export class TaskService {
     await this.taskRepository.delete({ id });
   }
 
-  // 카드 이동
-  async updateTaskOrder(
-    taskId: number,
-    userId: number,
-    { newColumnId, newOrder }: MoveTaskDto,
-  ) {
-    // 사용자 확인
-    const user = await this.userRepository.findOneBy({ id: userId });
-
-    if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
-    }
-
-    // 이동할 새로운 컬럼과 현재 컬럼 확인
-    const newColumn = await this.columnEntityRepository.findOneBy({
-      id: newColumnId,
+  // 작업 인원 검색 함수
+  async findWorkersByTaskId(id: bigint) {
+    const boards = await this.taskUserRepository.find({
+      select: ['userId'],
+      where: { taskId : id },
     });
-    if (!newColumn)
-      throw new NotFoundException('새로운 컬럼이 존재하지 않습니다.');
 
-    const task = await this.taskRepository.findOneBy({ id: taskId });
-    if (!task) throw new NotFoundException('카드가 존재하지 않습니다.');
+    return boards.map((board) => {
+      return board.userId;
+    });
+  }
 
-    if (task.columnId !== newColumnId) {
-      // 다른 컬럼으로 이동하는 경우
-      task.columnId = newColumnId;
-    }
+  // task 작업자 추가
+  async addWorkers(id: bigint, userId: number, addWorkerTaskDto: AddWorkerTaskDto) {
+    const { workerId } = addWorkerTaskDto;
 
-    // 현재 컬럼 내에서의 순서 변경인 경우
-    if (task.columnId === newColumnId) {
-      const tasksInColumn = await this.taskRepository.find({
-        where: { columnId: newColumnId },
-        order: { order: 'ASC' }, // 컬럼 내 카드들을 순서대로 정렬
-      });
+    workerId.push(userId);
 
-      // 새로운 순서가 범위를 벗어난 경우 예외처리
-      if (newOrder >= tasksInColumn.length || newOrder < 0) {
-        throw new BadRequestException('유효하지 않은 순서입니다.');
-      }
+    const workingUserId = await this.findWorkersByTaskId(id);
 
-      // 순서 변경 로직
-      const currentIndex = tasksInColumn.findIndex((t) => t.id === task.id);
-      tasksInColumn.splice(currentIndex, 1); // 현재 카드를 배열에서 제거
-      tasksInColumn.splice(newOrder, 0, task); // 새로운 위치에 현재 카드를 삽입
-
-      // 각 카드의 순서를 업데이트
-      for (let i = 0; i < tasksInColumn.length; i++) {
-        tasksInColumn[i].order = i;
-        await this.taskRepository.save(tasksInColumn[i]);
+    console.log("workingUserId : "+workingUserId);
+    for (let i = workerId.length - 1; i >= 0; i--) {
+      if (workingUserId.includes(workerId[i])) {
+        workerId.splice(i, 1);
       }
     }
 
-    return task;
+    const InsertData = workerId.map((workingUserNum) => ({
+      taskId: id,
+      userId: workingUserNum,
+    }));
+
+    await this.taskUserRepository
+      .createQueryBuilder()
+      .insert()
+      .values(InsertData)
+      .execute();
+
+    // 총 초대된 인원
+    const count = await this.taskUserRepository.count({
+      where: { taskId: id },
+    });
+
+    return count;
   }
 }
