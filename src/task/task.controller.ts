@@ -7,11 +7,7 @@ import {
   Param,
   Delete,
   HttpStatus,
-  Request,
-  Req,
   UseGuards,
-  ParseIntPipe,
-  Query,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -19,6 +15,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { UserInfo } from 'src/user/utils/userInfo.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
+import { AddWorkerTaskDto } from './dto/add-worker-task.dto';
 
 @Controller('task')
 export class TaskController {
@@ -38,10 +35,10 @@ export class TaskController {
 
   // 카드 목록조회
   @UseGuards(AuthGuard('jwt'))
-  @Get()
-  async findAll(@Query('boardId') boardId: number) {
-    console.log(boardId);
-    const data = await this.taskService.findAll(boardId);
+  @Get('get-all/:columnId')
+  async findAll(@Param('columnId') columnId: number) {
+    console.log(columnId);
+    const data = await this.taskService.findAll(columnId);
 
     return {
       statusCode: HttpStatus.OK,
@@ -90,6 +87,22 @@ export class TaskController {
       message: '카드 삭제에 성공했습니다.',
       data,
     };
+  }
+
+  // 카드 담당자 추가
+  @UseGuards(AuthGuard('jwt'))
+  @Post('add-work/:id')
+  async addWorker(
+    @Param('id') id: bigint,
+    @UserInfo() user: User,
+    @Body() addWorkerTaskDto: AddWorkerTaskDto,
+  ) {
+    const workerCount = await this.taskService.addWorkers(
+      id,
+      user.id,
+      addWorkerTaskDto,
+    );
+    return { successMessage: `현재 해당 Task 작업자 : ${workerCount}명` };
   }
 
 }

@@ -10,8 +10,10 @@ import { Task } from './entities/task.entity';
 import { Column, Repository } from 'typeorm';
 import { ColumnEntity } from 'src/column/entities/column.entity';
 import { User } from 'src/user/entities/user.entity';
+import { TaskUser } from './entities/taskUser.entity';
 import { UpdateTaskOrderDto } from '../column/dto/update-task-order.dto';
 import { FindAllTaskDto } from './dto/findAll-task.dto';
+import { AddWorkerTaskDto } from './dto/add-worker-task.dto';
 
 @Injectable()
 export class TaskService {
@@ -20,6 +22,7 @@ export class TaskService {
     @InjectRepository(ColumnEntity)
     private readonly columnEntityRepository: Repository<ColumnEntity>,
     @InjectRepository(User) private readonly userRepository: Repository<User>,
+    @InjectRepository(TaskUser) private readonly taskUserRepository: Repository<TaskUser>,
   ) {}
 
   async createTask(
@@ -104,7 +107,7 @@ export class TaskService {
   async updateTask(
     id: number,
     userId: number,
-    { name, info, color, worker, dueDate, fileUrl }: UpdateTaskDto,
+    { name, info, color, dueDate, fileUrl }: UpdateTaskDto,
   ) {
     // const { name, info, color, worker } = updateTaskDto;
 
@@ -118,15 +121,6 @@ export class TaskService {
 
     if (!task) {
       throw new NotFoundException('카드를 수정할 수 없습니다.');
-    }
-
-    // 작업자 할당 수정
-    if (worker !== undefined && worker === task.worker) {
-      if (Object.values(Worker).includes(worker)) {
-        task.worker = worker;
-      } else {
-        throw new NotFoundException('작업자가 존재하지 않습니다.');
-      }
     }
 
     const pattern = /^\d{4}-\d{2}-\d{2}$/;
@@ -146,7 +140,6 @@ export class TaskService {
       name,
       info,
       color,
-      worker: task.worker,
       dueDate,
       fileUrl,
     });
@@ -170,4 +163,49 @@ export class TaskService {
     await this.taskRepository.delete({ id });
   }
 
+  // 작업 인원 검색 함수
+  async findWorkersByTaskId(id: bigint) {
+    const boards = await this.taskUserRepository.find({
+      select: ['userId'],
+      where: { taskId : id },
+    });
+
+    return boards.map((board) => {
+      return board.userId;
+    });
+  }
+
+  // task 작업자 추가
+  async addWorkers(id: bigint, userId: number, addWorkerTaskDto: AddWorkerTaskDto) {
+    const { workerId } = addWorkerTaskDto;
+
+    workerId.push(userId);
+
+    const workingUserId = await this.findWorkersByTaskId(id);
+
+    console.log("workingUserId : "+workingUserId);
+    for (let i = workerId.length - 1; i >= 0; i--) {
+      if (workingUserId.includes(workerId[i])) {
+        workerId.splice(i, 1);
+      }
+    }
+
+    const InsertData = workerId.map((workingUserNum) => ({
+      taskId: id,
+      userId: workingUserNum,
+    }));
+
+    await this.taskUserRepository
+      .createQueryBuilder()
+      .insert()
+      .values(InsertData)
+      .execute();
+
+    // 총 초대된 인원
+    const count = await this.taskUserRepository.count({
+      where: { taskId: id },
+    });
+
+    return count;
+  }
 }
