@@ -11,7 +11,6 @@ import _ from 'lodash';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
 import { DeleteUserDto } from './dto/delete-user.dto';
-
 @Injectable()
 export class UserService {
   constructor(
