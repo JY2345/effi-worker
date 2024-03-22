@@ -15,16 +15,17 @@ import { AuthGuard } from '@nestjs/passport';
 import { User } from 'src/user/entities/user.entity';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { UpdateColumnOrderDto } from './dto/update-column-order.dto';
+import { UserInfo } from 'src/user/utils/userInfo.decorator';
 
-// jwt로 인증하기 @UseGuard(AuthGuard('jwt'))
+@UseGuards(AuthGuard('jwt'))
 @Controller('board')
 export class BoardController {
   constructor(private readonly boardService: BoardService) {}
 
-  // 인증받은 유저 데려오기 @UserInfo() user:User
+  // 보드 생성
   @Post()
-  async create(@Body() createBoardDto: CreateBoardDto) {
-    const board = await this.boardService.create(createBoardDto);
+  async create(@UserInfo() user: User, @Body() createBoardDto: CreateBoardDto) {
+    const board = await this.boardService.create(createBoardDto, user);
     return {
       successMessage: '보드 생성에 성공하였습니다.',
       board,
@@ -42,17 +43,12 @@ export class BoardController {
   }
 
   // 보드 수정
-  /*@UserInfo() user:User, */
   @Patch(':id')
   async update(
+    @UserInfo() user: User,
     @Param('id') id: bigint,
     @Body() updateBoardDto: UpdateBoardDto,
   ) {
-    //이건 지울것
-    const user = {
-      id: 1,
-    };
-
     const board = await this.boardService.update(id, user.id, updateBoardDto);
     return {
       successMessage: '보드 수정에 성공하였습니다.',
@@ -62,14 +58,8 @@ export class BoardController {
 
   // 보드 삭제
   @Delete(':id')
-  async delete(@Param('id') id: bigint /*@UserInfo() user:User, */) {
-    //이건 지울것
-    const user = {
-      id: 2,
-    };
-
+  async delete(@Param('id') id: bigint, @UserInfo() user: User) {
     await this.boardService.delete(id, user.id);
-
     return { successMessage: '보드 삭제에 성공하였습니다.' };
   }
 
@@ -77,19 +67,21 @@ export class BoardController {
   @Post(':id')
   async invite(
     @Param('id') id: bigint,
-    /*@UserInfo() user:User, */ @Body() inviteBoardDto: InviteBoardDto,
+    @UserInfo() user: User,
+    @Body() inviteBoardDto: InviteBoardDto,
   ) {
-    //이건 지울것
-    const user = {
-      id: 1,
-    };
     const inviteCount = await this.boardService.invite(
       id,
       user.id,
       inviteBoardDto,
     );
-
     return { successMessage: `현재 일잘러 참가 인원 : ${inviteCount}명` };
+  }
+
+  @Get(':id')
+  async detailBoard(@Param('id') id: bigint, @UserInfo() user: User) {
+    const board = await this.boardService.detailBoard(id, user.id);
+    return { successMessage: `보드 상세조회에 성공하였습니다.`, board };
   }
 
   // 컬럼 순서 변경 저장

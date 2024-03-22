@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { InviteBoardDto } from './dto/inviteBoard.dto';
@@ -13,7 +14,7 @@ import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { BoardUser } from './entities/boardUser.entity';
 import { ColumnEntity } from 'src/column/entities/column.entity';
-import { number } from 'joi';
+import { any, number } from 'joi';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { UpdateColumnOrderDto } from './dto/update-column-order.dto';
 
@@ -29,11 +30,11 @@ export class BoardService {
   ) {}
 
   // board생성
-  async create(createBoardDto: CreateBoardDto) {
+  async create(createBoardDto: CreateBoardDto, user: User) {
     const { name, color, info } = createBoardDto;
 
     return await this.boardRepository.save({
-      userId: 1,
+      userId: user.id,
       name,
       color,
       info,
@@ -42,9 +43,23 @@ export class BoardService {
 
   // 보드 조회
   async findAll() {
-    return await this.boardRepository.find({
-      select: ['id', 'name', 'color', 'info', 'createdAt'],
-    });
+    const boards = await this.boardRepository
+      .createQueryBuilder('board')
+      .select([
+        'board.id',
+        'board.name',
+        'board.color',
+        'board.info',
+        'board.createdAt',
+      ])
+      .getRawMany();
+
+    for (let i = 0; i < boards.length; i++) {
+      const userIds = await this.findByInviteId(boards[i].board_id);
+      boards[i].board_userId = JSON.stringify(userIds.sort());
+    }
+
+    return boards;
   }
 
   // 보드 수정
@@ -93,17 +108,9 @@ export class BoardService {
       throw new ForbiddenException('초대할 권한이 없습니다.');
     }
 
-    const boards = await this.boardUserRepository.find({
-      select: ['userId'],
-      where: { boardId: id },
-    });
-
     inviteId.push(userId);
 
-    const invitedUserId = boards.map((board) => {
-      return board.userId;
-    });
-    console.log('invitedUserId => ', invitedUserId);
+    const invitedUserId = await this.findByInviteId(id);
 
     for (let i = inviteId.length - 1; i >= 0; i--) {
       if (invitedUserId.includes(inviteId[i])) {
@@ -131,15 +138,37 @@ export class BoardService {
     return count;
   }
 
+  // 초대 인원만 보드 상세 조회
+  async detailBoard(id: bigint, userId: number) {
+    const invitedUserId = await this.findByInviteId(id);
+
+    if (invitedUserId.includes(userId)) {
+      return this.findById(id);
+    } else {
+      throw new UnauthorizedException('보드의 접근 권한이 없습니다.');
+    }
+  }
+
   // 보드 아이디 검색 함수
   async findById(id: bigint) {
     const board = await this.boardRepository.findOne({
       where: { id },
     });
-    console.log('id => ', id);
-    console.log('board => ', board);
-
     return board;
+  }
+
+  // 초대 인원 검색 함수
+  async findByInviteId(id: bigint) {
+    const boards = await this.boardUserRepository.find({
+      select: ['userId'],
+      where: { boardId: id },
+    });
+
+    console.log('boards => ', boards);
+
+    return boards.map((board) => {
+      return board.userId;
+    });
   }
 
   // ColumnOrder 업데이트
