@@ -33,12 +33,20 @@ export class BoardService {
   async create(createBoardDto: CreateBoardDto, user: User) {
     const { name, color, info } = createBoardDto;
 
-    return await this.boardRepository.save({
+    const board = await this.boardRepository.save({
       userId: user.id,
       name,
       color,
       info,
     });
+
+    await this.boardUserRepository
+      .createQueryBuilder('boardUser')
+      .insert()
+      .values({ boardId: board.id, userId: board.userId })
+      .execute();
+
+    return board;
   }
 
   // 보드 조회
@@ -108,8 +116,6 @@ export class BoardService {
       throw new ForbiddenException('초대할 권한이 없습니다.');
     }
 
-    inviteId.push(userId);
-
     const invitedUserId = await this.findByInviteId(id);
 
     for (let i = inviteId.length - 1; i >= 0; i--) {
@@ -163,8 +169,6 @@ export class BoardService {
       select: ['userId'],
       where: { boardId: id },
     });
-
-    console.log('boards => ', boards);
 
     return boards.map((board) => {
       return board.userId;
