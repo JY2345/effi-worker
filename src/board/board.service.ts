@@ -13,7 +13,7 @@ import { FindOperator, In, Repository } from 'typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { BoardUser } from './entities/boardUser.entity';
-import { ColumnEntity } from 'src/column/entities/column.entity';
+import { ColumnEntity } from '../column/entities/column.entity';
 import { any, number } from 'joi';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { UpdateColumnOrderDto } from './dto/update-column-order.dto';

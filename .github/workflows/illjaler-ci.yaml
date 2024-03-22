@@ -4,7 +4,7 @@ on:
   push: # push이벤트가 발생하면서 브랜치가 main일 경우와,
     branches:
       - main
-      - board
+      - cicd
   pull_request: # pull_request이벤트가 발생하면서 브랜치가 main | dev 인 경우에 workflow가 실행.
     branches:
       - main
