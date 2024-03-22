@@ -22,6 +22,9 @@ export class ColumnEntity extends BaseEntity {
   @Column({ type: 'varchar', length: 255, nullable: false })
   name: string;
 
+  @Column({ type: 'text', nullable: true })
+  taskOrder?: string;
+
   @CreateDateColumn({ type: 'datetime', nullable: false })
   createdAt: Date;
 

@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { fetchBoards, fetchColumnsForBoard } from './api';
+import { fetchBoards } from './api';
+import Columns from './Columns';
+import Chat from './Chat';
 
-function Board() {
+function Board({ socket }) {
   const [boards, setBoards] = useState([]);
+  const [selectedBoardId, setSelectedBoardId] = useState(null);
 
   useEffect(() => {
     const initFetchBoards = async () => {
@@ -17,6 +20,20 @@ function Board() {
     initFetchBoards();
   }, []);
 
+  useEffect(() => {
+    if (selectedBoardId) {
+      socket.emit('joinRoom', selectedBoardId);
+
+      return () => {
+        socket.emit('leaveRoom', selectedBoardId);
+      };
+    }
+  }, [selectedBoardId, socket]);
+
+  const handleBoardClick = (boardId) => {
+    setSelectedBoardId(boardId);
+  };
+
   const addBoard = () => {
     const newBoard = {
       id: boards.length + 1,
@@ -30,21 +47,37 @@ function Board() {
   };
 
   return (
-    <div className="board">
-      <h1>보드 리스트</h1>
-      {boards.map((board) => (
-        <div key={board.id} className="list">
-          <div className="list-title">{board.name}</div>
+    <div className="data_wrapper">
+      <div className="board_wrapper">
+        <div className="board">
+          <h1>보드 리스트</h1>
+          {boards.map((board) => (
+            <div
+              key={board.id}
+              className="list"
+              onClick={() => handleBoardClick(board.id)}
+            >
+              <div className="list-title">{board.name}</div>
+            </div>
+          ))}
+
+          <button onClick={addBoard} className="add-board-btn">
+            보드 추가
+          </button>
+          <button onClick={addBoard} className="add-board-btn">
+            보드 초대
+          </button>
         </div>
-      ))}
+      </div>
 
-      <button onClick={addBoard} className="add-board-btn">
-        보드 추가
-      </button>
-
-      <button onClick={addBoard} className="add-board-btn">
-        보드 초대
-      </button>
+      <div className="column_wrapper">
+        {selectedBoardId && <Columns boardId={selectedBoardId} />}
+        <div className="chat_wrapper">
+          {selectedBoardId && (
+            <Chat boardId={selectedBoardId} socket={socket} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

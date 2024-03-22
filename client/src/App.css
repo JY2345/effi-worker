@@ -60,17 +60,11 @@ body {
   border-radius: 5px;
   padding: 10px;
 }
-.card {
-  background-color: #fff;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 3px;
-  box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
-}
+
 .list-title {
   font-size: 18px;
   font-weight: bold;
-  margin-bottom: 10px;
+  cursor: pointer;
 }
 
 /******
@@ -92,7 +86,8 @@ body {
 }
 .logout-button {
   position: fixed;
-  top: 20px; right: 20px;
+  top: 20px;
+  right: 20px;
   z-index: 999;
   padding: 10px 20px;
   background-color: #f44336; /* 빨간색 */
@@ -104,4 +99,61 @@ body {
 
 .logout-button:hover {
   background-color: #d32f2f;
+}
+
+/******
+wrapper
+******/
+.data_wrapper {
+  display: flex;
+  align-items: center;
+}
+.data_wrapper .board_wrapper {
+  flex: 1;
+}
+.data_wrapper .column_wrapper {
+  flex: 4;
+  align-items: center;
+  display: flex;
+}
+
+/******
+Columns
+******/
+/* 컬럼들을 포함하는 외부 컨테이너 */
+.columns {
+  display: flex;
+  overflow-x: auto;
+  padding: 10px;
+  align-items: center;
+  display: flex;
+}
+
+/* 개별 컬럼 스타일 */
+.column {
+  background-color: #ebecf0;
+  border-radius: 3px;
+  margin-right: 10px;
+  min-width: 300px;
+  max-width: 300px;
+  min-height: 300px;
+  height: auto;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+/* 컬럼 제목 스타일 */
+.column-title {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+/* 개별 카드 스타일 */
+.task {
+  background-color: white;
+  border-radius: 3px;
+  box-shadow: 0 1px 1px rgba(9, 30, 66, 0.25);
+  padding: 8px;
+  margin-bottom: 10px;
 }

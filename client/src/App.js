@@ -14,12 +14,11 @@ function App() {
     if (storedUserData) {
       setUser(JSON.parse(storedUserData));
     }
-  
+
     socket.on('receiveNotification', (data) => {
       alert(`전송을 받았어요~ : ${data.message}`);
     });
   }, []);
-  
 
   const handleLogout = () => {
     localStorage.removeItem('authorized');
@@ -27,7 +26,7 @@ function App() {
     setUser(null);
     console.log('로그아웃 되었습니다.');
   };
-  
+
   const handleLoginSuccess = (userData) => {
     const authorizedData = userData.data;
     if (authorizedData) {
@@ -44,7 +43,6 @@ function App() {
       console.error('authorized 데이터가 없습니다.');
     }
   };
-  
 
   const handleLoginFailure = (message) => {
     alert(message);
@@ -54,7 +52,7 @@ function App() {
     <div className="App">
       {user ? (
         <>
-          <Board />
+          <Board socket={socket} />
           <button onClick={handleLogout} className="logout-button">
             로그아웃
           </button>
