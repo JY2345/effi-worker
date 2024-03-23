@@ -70,27 +70,29 @@ export class TaskService {
     return task;
   }
 
-  async findAll(boardId: number): Promise<Task[]> {
-    const columns = await this.columnEntityRepository.find({
-      where: { boardId: boardId },
+  async findAll(columnId: number): Promise<Task[]> {
+    const existingColumn = await this.columnEntityRepository.findOne({
+      where: { id: columnId },
     });
-    if (columns.length < 1) {
-      throw new NotFoundException('해당 boardId에 해당하는 칼럼이 없습니다.');
+    if (!existingColumn) {
+      throw new NotFoundException('해당하는 컬럼이 없습니다.');
     }
 
-    const whereArr = columns.map((column) => {
-      return { columnId: column.id };
-    });
+    if (existingColumn.taskOrder && existingColumn.taskOrder.length > 0) {
+      const taskOrderArray = JSON.parse(existingColumn.taskOrder);
+      const orderedQuery = this.taskRepository
+        .createQueryBuilder('task')
+        .where('task.columnId = :columnId', { columnId })
+        .orderBy(`FIELD(task.id, ${taskOrderArray.join(',')})`);
+      return await orderedQuery.getMany();
+    } else {
+      const defaultQuery = this.taskRepository
+        .createQueryBuilder('task')
+        .where('task.columnId = :columnId', { columnId })
+        .orderBy('task.id', 'ASC');
 
-    const tasks = await this.taskRepository.find({
-      where: whereArr,
-    });
-
-    if (!tasks || tasks.length === 0) {
-      throw new NotFoundException('해당 columnId에 해당하는 카드가 없습니다.');
+      return await defaultQuery.getMany();
     }
-
-    return tasks;
   }
 
   // 카드 상세조회
@@ -124,7 +126,7 @@ export class TaskService {
     }
 
     const pattern = /^\d{4}-\d{2}-\d{2}$/;
-    if (!pattern.test(dueDate.toISOString().slice(0, 10))) {
+    if (typeof dueDate !== 'string' || !pattern.test(dueDate)) {
       throw new BadRequestException(
         "날짜 형식이 유효하지 않습니다. 'YYYY-MM-DD' 형식으로 입력해주세요.",
       );
@@ -163,49 +165,47 @@ export class TaskService {
     await this.taskRepository.delete({ id });
   }
 
-  // 작업 인원 검색 함수
-  async findWorkersByTaskId(id: bigint) {
-    const boards = await this.taskUserRepository.find({
-      select: ['userId'],
-      where: { taskId : id },
-    });
-
-    return boards.map((board) => {
-      return board.userId;
-    });
-  }
-
   // task 작업자 추가
-  async addWorkers(id: bigint, userId: number, addWorkerTaskDto: AddWorkerTaskDto) {
-    const { workerId } = addWorkerTaskDto;
+  async addWorker(addWorkerTaskDto: AddWorkerTaskDto) {
+    const { workerId, taskId } = addWorkerTaskDto;
 
-    workerId.push(userId);
-
-    const workingUserId = await this.findWorkersByTaskId(id);
-
-    console.log("workingUserId : "+workingUserId);
-    for (let i = workerId.length - 1; i >= 0; i--) {
-      if (workingUserId.includes(workerId[i])) {
-        workerId.splice(i, 1);
-      }
+    const existingTask = await this.taskRepository.findOneBy({ id: taskId });
+    if (!existingTask) {
+      throw new NotFoundException('해당 카드 정보를 찾을 수 없습니다.');
     }
 
-    const InsertData = workerId.map((workingUserNum) => ({
-      taskId: id,
-      userId: workingUserNum,
-    }));
+    const user = await this.userRepository.findOneBy({ id: workerId });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
 
-    await this.taskUserRepository
-      .createQueryBuilder()
-      .insert()
-      .values(InsertData)
-      .execute();
+    const existingWorker = await this.taskUserRepository.findOneBy({ userId: workerId, taskId : BigInt(taskId) });
+    if (existingWorker) {
+      throw new BadRequestException('이미 존재하는 작업자입니다.');
+    }
 
-    // 총 초대된 인원
-    const count = await this.taskUserRepository.count({
-      where: { taskId: id },
+    const taskUser = await this.taskUserRepository.save({
+      userId : +workerId,
+      taskId : BigInt(taskId)
+    })
+
+    return taskUser;
+  }
+
+  async removeWorker(addWorkerTaskDto: AddWorkerTaskDto) {
+    const {workerId, taskId} = addWorkerTaskDto;
+    const taskUser = await this.taskUserRepository.findOneBy({ userId : workerId, taskId: BigInt(taskId) });
+    if (!taskUser) {
+      throw new NotFoundException('해당 카드에 대한 담당자를 찾을 수 없습니다.');
+    }
+
+    // 담당자 삭제
+    await this.taskUserRepository.remove(taskUser);
+  }
+
+  async getWorkers(taskId: number) {
+    return this.taskUserRepository.find({
+      where: { taskId : BigInt(taskId) },
     });
-
-    return count;
   }
 }
