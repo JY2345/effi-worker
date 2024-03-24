@@ -9,8 +9,8 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { InviteBoardDto } from './dto/inviteBoard.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Board } from './entities/board.entity';
-import { FindOperator, In, Repository } from 'typeorm';
-import { User } from 'src/user/entities/user.entity';
+import { FindOperator, In, Not, Repository } from 'typeorm';
+import { User } from '../user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { BoardUser } from './entities/boardUser.entity';
 import { ColumnEntity } from '../column/entities/column.entity';
@@ -27,6 +27,8 @@ export class BoardService {
     private readonly boardUserRepository: Repository<BoardUser>,
     @InjectRepository(ColumnEntity)
     private readonly columnRepository: Repository<ColumnEntity>,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   // board생성
@@ -257,4 +259,41 @@ export class BoardService {
 
     return board;
   }
+
+  async findNonMembers(boardId: bigint, userId: number): Promise<User[]> {
+
+    const existingMembers = await this.boardUserRepository.find({
+      where: { boardId },
+      select: ['userId'] 
+    });
+  
+    const memberIds = existingMembers.map(member => member.userId);
+    memberIds.push(userId);
+  
+    const nonMembers = await this.userRepository.find({
+      where: {
+        id: Not(In(memberIds))
+      },
+      select : ['id','name', 'email']
+    });
+
+    return nonMembers;
+  } 
+
+  /**
+   * 해당 보드 유저 조회
+   * @param boardId 
+   * @param userId 
+   * @returns 
+   */
+  async findUserIdsByBoardId(boardId: bigint): Promise<BoardUser[]> {
+
+    const members = await this.boardUserRepository.find({
+      where: {
+        boardId
+      },
+    });
+
+    return members;
+  }  
 }

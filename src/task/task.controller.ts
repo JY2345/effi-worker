@@ -11,7 +11,7 @@ import {
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskDto, ChgTaskColDto } from './dto/update-task.dto';
 import { UserInfo } from '../user/utils/userInfo.decorator';
 import { User } from '../user/entities/user.entity';
 import { AuthGuard } from '@nestjs/passport';
@@ -60,7 +60,7 @@ export class TaskController {
 
   // 카드 수정
   @UseGuards(AuthGuard('jwt'))
-  @Patch(':id')
+  @Patch('chg-task/:id')
   async update(
     @UserInfo() user: User,
     @Param('id') id: number,
@@ -74,6 +74,22 @@ export class TaskController {
       data,
     };
   }
+  
+  // 카드 다른 컬럼으로 이동
+  @UseGuards(AuthGuard('jwt'))
+  @Patch('chg-task-col')
+  async moveTask(
+    @Body() chgTaskColDto: ChgTaskColDto,
+  ) {
+    const data = await this.taskService.moveTask(chgTaskColDto);
+
+    return {
+      statusCode: HttpStatus.OK,
+      message: '카드 이동에 성공했습니다.',
+      data,
+    };
+  }
+
 
   // 카드 삭제
   @UseGuards(AuthGuard('jwt'))
