@@ -57,6 +57,12 @@ export class AuthService {
       sub: user.id,
       type: isRefreshToken ? 'refresh' : 'access',
     };
+    const token = this.jwtService.sign(payload);
+    if (payload.type === 'refresh') {
+      this.cacheManager.set(`REFRESH_TOKEN:${user.id}`, `${token}`, {
+        ttl: 3600,
+      });
+    }
     return this.jwtService.sign(payload);
   }
 
@@ -176,7 +182,7 @@ export class AuthService {
   }
   // Access Token 만료 뒤에도 Refresh Token 이용하여 로그인 할 수 있는 토큰 뱉기
   // 보통 토큰 재발급은 => rotate 라고 함
-  rotateToken(token: string, isRefreshToken: boolean) {
+  async rotateToken(token: string, isRefreshToken: boolean) {
     const decoded = this.jwtService.verify(token);
 
     // payload -> email, sub, type
@@ -185,6 +191,25 @@ export class AuthService {
       throw new UnauthorizedException(
         'Refresh Token으로만 재발급이 가능합니다.',
       );
+
+    const redis = await this.cacheManager.get(`REFRESH_TOKEN:${decoded.sub}`);
+
+    if (!redis || redis !== token)
+      throw new UnauthorizedException(
+        '토큰이 존재하지 않거나, 일치하지 않습니다.',
+      );
+
     return this.signToken({ ...decoded }, isRefreshToken);
+  }
+  async logout(token: string, isRefreshToken: boolean) {
+    const decoded = this.jwtService.verify(token);
+    const redis = await this.cacheManager.get(`REFRESH_TOKEN:${decoded.sub}`);
+
+    if (!redis || redis !== token)
+      throw new UnauthorizedException(
+        '토큰이 존재하지 않거나, 일치하지 않습니다.',
+      );
+
+    await this.cacheManager.del(`REFRESH_TOKEN:${decoded.sub}`);
   }
 }
