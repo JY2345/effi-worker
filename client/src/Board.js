@@ -5,7 +5,13 @@ import Chat from './Chat';
 
 function Board({ socket }) {
   const [boards, setBoards] = useState([]);
+  const [isAddingBoard, setIsAddingBoard] = useState(false);
   const [selectedBoardId, setSelectedBoardId] = useState(null);
+  const [newBoard, setNewBoard] = useState({
+    name: '',
+    color: '#cccccc',
+    info: '',
+  });
 
   useEffect(() => {
     const initFetchBoards = async () => {
@@ -36,11 +42,11 @@ function Board({ socket }) {
 
   const addBoard = () => {
     const newBoard = {
-      id: boards.length + 1,
-      name: `새 보드 ${boards.length + 1}`,
-      color: '#cccccc',
-      info: '새로 추가된 보드입니다.',
-      createdAt: new Date().toISOString(),
+      board_id: boards.length + 1,
+      board_name: `새 보드 ${boards.length + 1}`,
+      board_color: '#cccccc',
+      board_info: '새로 추가된 보드입니다.',
+      board_createdAt: new Date().toISOString(),
     };
 
     setBoards([...boards, newBoard]);
@@ -71,7 +77,7 @@ function Board({ socket }) {
       </div>
 
       <div className="column_wrapper">
-        {selectedBoardId && <Columns boardId={selectedBoardId} />}
+        {selectedBoardId && <Columns socket={socket} boardId={selectedBoardId} />}
         <div className="chat_wrapper">
           {selectedBoardId && (
             <Chat boardId={selectedBoardId} socket={socket} />

@@ -7,17 +7,23 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('token/access')
-  createTokenAccess(@Headers('authorization') rawToken: string) {
-    const token = this.authService.extractTokenFromHeader(rawToken, true); // true => Bearer 타입
-    const newToken = this.authService.rotateToken(token, false); // false니까 Access Token 나옴
-    return { accessToken: newToken };
+  async createTokenAccess(@Headers('authorization') rawToken: string) {
+    const token = await this.authService.extractTokenFromHeader(rawToken, true); // true => Bearer 타입
+    const newToken = await this.authService.rotateToken(token, false); // false니까 Access Token 나옴
+    return {
+      message: 'Access Token 재발급에 성공하였습니다.',
+      accessToken: newToken,
+    };
   }
 
   @Post('token/refresh')
   createTokenRefresh(@Headers('authorization') rawToken: string) {
     const token = this.authService.extractTokenFromHeader(rawToken, true); // true => Bearer 타입
     const newToken = this.authService.rotateToken(token, true); // true니까 Refresh Token 나옴
-    return { refreshToken: newToken };
+    return {
+      message: 'Refresh Token 재발급에 성공하였습니다.',
+      refreshToken: newToken,
+    };
   }
 
   @Post('login')
@@ -27,6 +33,13 @@ export class AuthController {
   ) {
     const data = await this.authService.loginWithEmail({ email, password });
     return { message: '로그인에 성공하였습니다.', data };
+  }
+
+  @Post('logout')
+  async logoutEmail(@Headers('authorization') rawToken: string) {
+    const token = this.authService.extractTokenFromHeader(rawToken, true);
+    await this.authService.logout(token, true);
+    return { message: '로그아웃에 성공하였습니다.' };
   }
 
   /**

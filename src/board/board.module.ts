@@ -9,9 +9,11 @@ import { Board } from './entities/board.entity';
 import { Comment } from 'src/comment/entities/comment.entity';
 import { BoardUser } from './entities/boardUser.entity';
 
+
 @Module({
-  imports: [TypeOrmModule.forFeature([ColumnEntity, User, Board, BoardUser])],
+  imports: [TypeOrmModule.forFeature([ColumnEntity, User, Board, BoardUser, Comment])],
   controllers: [BoardController],
   providers: [BoardService],
+  exports: [BoardService], 
 })
 export class BoardModule {}

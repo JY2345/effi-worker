@@ -42,6 +42,15 @@ export class BoardController {
     };
   }
 
+  @Get('myBoard')
+  async findMyBoard(@UserInfo() user: User) {
+    const boards = await this.boardService.findMyBoard(user.id);
+    return {
+      successMessage: '보드 조회에 성공하였습니다.',
+      boards,
+    };
+  }
+
   // 보드 수정
   @Patch(':id')
   async update(
@@ -91,5 +100,37 @@ export class BoardController {
     @Body() updateColumnOrderDto: UpdateColumnOrderDto,
   ) {
     return this.boardService.updateColumnOrder(+id, updateColumnOrderDto);
+  }
+
+  /**
+   * 보드에 아직 속하지 않은 유저 조회
+   */
+  @Get('not-in-board/:boardId')
+  async findNonMembers(
+    @Param('boardId') boardId: bigint,
+    @UserInfo() user: User,
+  ) {
+    const users = await this.boardService.findNonMembers(BigInt(boardId), user.id);
+    return {
+      successMessage: '조회에 성공하였습니다.',
+      users,
+    };
+  }
+
+  /**
+   * 보드에 속한 유저 조회 
+   * @param boardId : Number
+   * @param user
+   * @returns 
+   */
+  @Get('in-board/:boardId')
+  async findMembers(
+    @Param('boardId') boardId: bigint,
+  ) {
+    const users = await this.boardService.findUserIdsByBoardId(BigInt(boardId));
+    return {
+      successMessage: '조회에 성공하였습니다.',
+      users,
+    };
   }
 }

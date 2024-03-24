@@ -4,10 +4,9 @@ import './App.css';
 import Board from './Board';
 import LoginForm from './LoginForm';
 
-const socket = io('http://localhost:3000');
-
 function App() {
   const [user, setUser] = useState(null);
+  const [socket, setSocket] = useState(null); // 소켓 상태를 저장하는 state 추가
 
   useEffect(() => {
     const storedUserData = localStorage.getItem('user');
@@ -15,10 +14,38 @@ function App() {
       setUser(JSON.parse(storedUserData));
     }
 
-    socket.on('receiveNotification', (data) => {
-      alert(`전송을 받았어요~ : ${data.message}`);
-    });
+    const socket = io('http://localhost:3000');
+    setSocket(socket);
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
   }, []);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('receiveNotification', (data) => {
+        alert(`전송을 받았어요~ : ${data.message}`);
+      });
+    }
+  }, [socket]);
+
+  useEffect(() => {
+    if (socket) {
+      const handleCardMovedNotification = (data) => {
+        console.log("Card moved:", data.message);
+        alert(data.message);
+      };
+    
+      socket.on('cardMovedNotification', handleCardMovedNotification);
+    
+      return () => {
+        socket.off('cardMovedNotification', handleCardMovedNotification);
+      };
+    }
+  }, [socket]);
 
   const handleLogout = () => {
     localStorage.removeItem('authorized');
@@ -52,6 +79,7 @@ function App() {
     <div className="App">
       {user ? (
         <>
+          {/* Board 컴포넌트에 소켓 전달 */}
           <Board socket={socket} />
           <button onClick={handleLogout} className="logout-button">
             로그아웃

@@ -1,11 +1,12 @@
 import { CreateColumnDto } from './dto/create-column.dto';
 import { UpdateColumnDto } from './dto/update-column.dto';
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOperator, In, Repository } from 'typeorm';
 import { ColumnEntity } from './entities/column.entity';
 import { Board } from '../board/entities/board.entity';
 import { Task } from '../task/entities/task.entity';
+import { BoardUser } from '../board/entities/boardUser.entity';
 import { UpdateTaskOrderDto } from './dto/update-task-order.dto';
 @Injectable()
 export class ColumnService {
@@ -14,6 +15,8 @@ export class ColumnService {
     private columnRepository: Repository<ColumnEntity>,
     @InjectRepository(Board)
     private boardRepository: Repository<Board>,
+    @InjectRepository(BoardUser)
+    private boardUserRepository: Repository<BoardUser>,
     @InjectRepository(Task)
     private taskRepository: Repository<Task>,
   ) {}
@@ -63,17 +66,25 @@ export class ColumnService {
     }
   }
 
-  findOne(id: number) {
+  async findOne(id: number) {
     return this.columnRepository.findOne({
       where: { id: id },
     });
   }
 
-  async updateColumnName(id: number, updateColumnDto: UpdateColumnDto) {
+  async updateColumnName(id: number, userId : number, updateColumnDto: UpdateColumnDto) {
     const existingColumn = await this.columnRepository.findOneBy({ id });
 
     if (!existingColumn) {
       throw new NotFoundException('존재하지 않는 컬럼입니다.');
+    }
+    const existingMember = await this.boardUserRepository.findOneBy({
+      userId: userId,
+      boardId: BigInt(existingColumn.boardId),
+    });
+
+    if (!existingMember) {
+      throw new ForbiddenException('이 컬럼을 수정할 권한이 없습니다.');
     }
 
     existingColumn.name = updateColumnDto.name;
@@ -89,14 +100,25 @@ export class ColumnService {
     };
   }
 
-  async removeColumn(id: number) {
+  async removeColumn(id: number, userId : number) {
     const existingColumn = await this.columnRepository.findOne({
       where: { id: id },
-      select: ['id', 'name'],
+      select: ['id', 'name', 'boardId'],
     });
 
     if (!existingColumn) {
       throw new NotFoundException('존재하지 않는 컬럼입니다.');
+    }
+
+    const boardId = existingColumn.boardId;
+
+    const existingMember = await this.boardUserRepository.findOneBy({
+      userId: userId,
+      boardId: BigInt(boardId),
+    });
+    
+    if (!existingMember) {
+      throw new ForbiddenException('이 컬럼을 수정할 권한이 없습니다.');
     }
 
     await this.columnRepository.delete(id);
@@ -142,7 +164,7 @@ export class ColumnService {
     let taskIds: any[];
     try {
       taskIds = await this.taskRepository.find({
-        where: { id: In(taskOrderArray) },
+        where: { id: In(taskOrderArray), columnId },
       });
     } catch (error) {
       throw new BadRequestException('카드 ID 조회 중 문제가 발생했습니다.');

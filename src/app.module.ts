@@ -19,14 +19,18 @@ import { Comment } from './comment/entities/comment.entity';
 
 import { AuthModule } from './auth/auth.module';
 
-import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsGateway, BoardGateway } from './notifications/notifications.gateway';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { SocketStateService } from './notifications/notifications.service';
+import { BoardService } from './board/board.service';
 import { join } from 'path';
 import { MailerModule } from './mailer/mailer.module';
 import { MulterModule } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import mime from 'mime';
+import { RedisCacheModule } from './cache/redis-cache.module';
+
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -67,6 +71,7 @@ const typeOrmModuleOptions = {
     AuthModule,
     NotificationsModule,
     TaskModule,
+    RedisCacheModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client/build'),
     }),
@@ -94,6 +99,6 @@ const typeOrmModuleOptions = {
   ],
 
   controllers: [AppController],
-  providers: [AppService, NotificationsGateway],
+  providers: [AppService, NotificationsGateway, BoardGateway,SocketStateService, BoardService],
 })
 export class AppModule {}

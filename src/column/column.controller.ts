@@ -15,6 +15,8 @@ import { ColumnEntity } from './entities/column.entity';
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { UpdateTaskOrderDto } from './dto/update-task-order.dto';
+import { UserInfo } from '../user/utils/userInfo.decorator';
+import { User } from '../user/entities/user.entity';
 @ApiTags('예약 정보')
 @Controller('column')
 @ApiBearerAuth('access-token')
@@ -43,15 +45,19 @@ export class ColumnController {
   @Patch(':id')
   updateColumnName(
     @Param('id') id: number,
+    @UserInfo() user: User,
     @Body() updateColumnDto: UpdateColumnDto,
   ) {
-    return this.columnService.updateColumnName(+id, updateColumnDto);
+    return this.columnService.updateColumnName(+id, +user.id,updateColumnDto);
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
-  async removeColumn(@Param('id') id: number) {
-    return this.columnService.removeColumn(+id);
+  async removeColumn(
+    @Param('id') id: number,
+    @UserInfo() user: User,
+  ) {
+    return this.columnService.removeColumn(+id, +user.id);
   }
 
   // 카드(태스크) 순서 변경 저장
