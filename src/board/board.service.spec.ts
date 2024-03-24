@@ -6,13 +6,16 @@ import { BoardUser } from './entities/boardUser.entity';
 import { ColumnEntity } from '../../src/column/entities/column.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { User } from 'src/user/entities/user.entity';
+import { User } from '../user/entities/user.entity';
 
 describe('BoardService', () => {
   let boardService: BoardService;
   let boardRepositoryMock: Partial<Record<keyof Repository<Board>, jest.Mock>>;
   let boardUserRepositoryMock: Partial<
     Record<keyof Repository<BoardUser>, jest.Mock>
+  >;
+  let columnRepositoryMock: Partial<
+    Record<keyof Repository<ColumnEntity>, jest.Mock>
   >;
 
   beforeEach(async () => {
@@ -21,6 +24,13 @@ describe('BoardService', () => {
     };
 
     boardUserRepositoryMock = {
+      createQueryBuilder: jest.fn(() => ({
+        insert: jest.fn().mockReturnThis(),
+        values: jest.fn().mockReturnThis(),
+        execute: jest.fn(),
+      })),
+    };
+    columnRepositoryMock = {
       createQueryBuilder: jest.fn().mockReturnThis(),
       insert: jest.fn().mockReturnThis(),
     };
@@ -29,12 +39,16 @@ describe('BoardService', () => {
       providers: [
         BoardService,
         {
-          provide: 'BoardRepository',
+          provide: getRepositoryToken(Board),
           useValue: boardRepositoryMock,
         },
         {
-          provide: 'BoardUserRepository',
+          provide: getRepositoryToken(BoardUser),
           useValue: boardUserRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(ColumnEntity),
+          useValue: columnRepositoryMock,
         },
       ],
     }).compile();
@@ -86,7 +100,9 @@ describe('BoardService', () => {
       userId: user.id,
       ...createBoardDto,
     });
-    expect(boardUserRepositoryMock.createQueryBuilder).toHaveBeenCalled();
-    expect(boardUserRepositoryMock.insert).toHaveBeenCalledWith();
+    expect(boardUserRepositoryMock.createQueryBuilder).toHaveBeenCalledTimes(1);
+    expect(boardUserRepositoryMock.createQueryBuilder).toHaveBeenCalledWith(
+      'boardUser',
+    );
   });
 });
