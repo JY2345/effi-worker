@@ -7,7 +7,7 @@ import { NotificationsGateway
 export class NotificationsController {
   constructor(
     private readonly notificationsGateway: NotificationsGateway,
-    // private readonly chatGateway: ChatGateway 
+
   ) {}
 
 

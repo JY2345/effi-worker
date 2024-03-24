@@ -7,6 +7,17 @@
   pointer-events: none;
 }
 
+p,
+li,
+ul,
+ol,
+h1,
+h2,
+h3 {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
@@ -74,7 +85,7 @@ body {
   margin-top: 20px;
   padding: 10px;
   font-size: 16px;
-  background-color: #4caf50; /* 녹색 */
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 5px;
@@ -90,7 +101,7 @@ body {
   right: 20px;
   z-index: 999;
   padding: 10px 20px;
-  background-color: #f44336; /* 빨간색 */
+  background-color: #f44336;
   color: white;
   border: none;
   border-radius: 5px;
@@ -124,9 +135,9 @@ Columns
 .columns {
   display: flex;
   overflow-x: auto;
+  flex-direction: row;
   padding: 10px;
-  align-items: center;
-  display: flex;
+  align-items: start;
 }
 
 /* 개별 컬럼 스타일 */
@@ -135,9 +146,9 @@ Columns
   border-radius: 3px;
   margin-right: 10px;
   min-width: 300px;
-  max-width: 300px;
-  min-height: 300px;
-  height: auto;
+  width: 10vw;
+  min-height: 200px;
+  max-height: 700px;
   overflow-y: auto;
   padding: 10px;
 }
@@ -156,4 +167,33 @@ Columns
   box-shadow: 0 1px 1px rgba(9, 30, 66, 0.25);
   padding: 8px;
   margin-bottom: 10px;
+}
+
+.task-list {
+  text-align: left;
+}
+.task-list li {
+  margin: 8px 0;
+  padding: 10px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+}
+
+/* 컬럼 삭제 버튼 스타일 */
+.delete-column-btn {
+  margin-top: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+  background-color: #ff4d4f; /* 빨간색 계열로 경고 표시 */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  align-self: flex-start; /* 컬럼의 상단에 위치 */
+}
+
+.delete-column-btn:hover {
+  background-color: #ff7875; /* 버튼에 마우스를 올렸을 때 밝은 빨간색으로 변경 */
 }
