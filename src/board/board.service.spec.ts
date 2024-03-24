@@ -21,6 +21,10 @@ describe('BoardService', () => {
   beforeEach(async () => {
     boardRepositoryMock = {
       save: jest.fn(),
+      createQueryBuilder: jest.fn(() => ({
+        select: jest.fn().mockReturnThis(),
+        getRawMany: jest.fn(),
+      })),
     };
 
     boardUserRepositoryMock = {
@@ -30,6 +34,7 @@ describe('BoardService', () => {
         execute: jest.fn(),
       })),
     };
+
     columnRepositoryMock = {
       createQueryBuilder: jest.fn().mockReturnThis(),
       insert: jest.fn().mockReturnThis(),
