@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
-import { UpdateTaskDto } from './dto/update-task.dto';
+import { UpdateTaskDto,ChgTaskColDto } from './dto/update-task.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Task } from './entities/task.entity';
 import { Column, Repository } from 'typeorm';
@@ -208,4 +208,23 @@ export class TaskService {
       where: { taskId : BigInt(taskId) },
     });
   }
+
+  
+// 태스크 컬럼 간 이동
+async moveTask(
+  chgTaskColDto : ChgTaskColDto
+) {
+  const { taskId, columnId } = chgTaskColDto;
+  const task = await this.taskRepository.findOneBy({ id : taskId });
+  if (!task) {
+    throw new NotFoundException('이동할 카드를 찾을 수 없습니다.');
+  }
+
+  await this.taskRepository.update(taskId, {
+    columnId
+  });
+
+  return this.taskRepository.findOneBy({ id : taskId });
 }
+}
+
