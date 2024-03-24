@@ -19,7 +19,7 @@ import { Comment } from './comment/entities/comment.entity';
 
 import { AuthModule } from './auth/auth.module';
 
-import { NotificationsGateway } from './notifications/notifications.gateway';
+import { NotificationsGateway, BoardGateway } from './notifications/notifications.gateway';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
@@ -71,6 +71,6 @@ const typeOrmModuleOptions = {
   ],
 
   controllers: [AppController],
-  providers: [AppService, NotificationsGateway],
+  providers: [AppService, NotificationsGateway, BoardGateway],
 })
 export class AppModule {}
