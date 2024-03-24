@@ -2,20 +2,37 @@ import React, { useEffect, useState } from 'react';
 import io from 'socket.io-client';
 import './App.css';
 import Board from './Board';
+import { getMyId } from './api';
 import LoginForm from './LoginForm';
 
 function App() {
   const [user, setUser] = useState(null);
-  const [socket, setSocket] = useState(null); // 소켓 상태를 저장하는 state 추가
+  const [socket, setSocket] = useState(null);
+  const [notification, setNotification] = useState({
+    message: '',
+    show: false,
+  });
 
   useEffect(() => {
     const storedUserData = localStorage.getItem('user');
-    if (storedUserData) {
-      setUser(JSON.parse(storedUserData));
-    }
-
-    const socket = io('http://localhost:3000');
-    setSocket(socket);
+    const fetchUserData = async () => {
+      const storedUserData = localStorage.getItem('user');
+      if (storedUserData) {
+        setUser(JSON.parse(storedUserData));
+        try {
+          const userId = await getMyId();
+          // 웹소켓 연결 URL에 사용자 ID 쿼리 파라미터 추가
+          const socketUrl = userId
+            ? `http://localhost:3000?userId=${userId}`
+            : 'http://localhost:3000';
+          const socket = io(socketUrl);
+          setSocket(socket);
+        } catch (error) {
+          console.error('사용자 ID를 가져오는 데 실패했습니다:', error);
+        }
+      }
+    };
+    fetchUserData();
 
     return () => {
       if (socket) {
@@ -35,12 +52,13 @@ function App() {
   useEffect(() => {
     if (socket) {
       const handleCardMovedNotification = (data) => {
-        console.log("Card moved:", data.message);
-        alert(data.message);
+        console.log('Card moved:', data.message);
+        //alert(data.message);
+        setNotification({ message: data.message, show: true });
       };
-    
+
       socket.on('cardMovedNotification', handleCardMovedNotification);
-    
+
       return () => {
         socket.off('cardMovedNotification', handleCardMovedNotification);
       };
@@ -75,8 +93,23 @@ function App() {
     alert(message);
   };
 
+  const Notification = ({ message, onClose }) => {
+    return (
+      <div className="notification">
+        {message}
+        <button onClick={onClose}>닫기</button>
+      </div>
+    );
+  };
+
   return (
     <div className="App">
+      {notification.show && (
+        <Notification
+          message={notification.message}
+          onClose={() => setNotification({ ...notification, show: false })}
+        />
+      )}
       {user ? (
         <>
           {/* Board 컴포넌트에 소켓 전달 */}

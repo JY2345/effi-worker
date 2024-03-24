@@ -2,6 +2,36 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const accessToken = localStorage.getItem('accessToken');
+
+export const createBoard = async(newBoard)=>{
+  try {
+    console.log(newBoard)
+    const response = await axios.post(`${API_BASE_URL}/board`, {
+      ...newBoard
+    }, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+  } catch (error) {
+    console.error('보드를 저장하는데 실패했습니다. : ', error);
+    throw error;
+  }
+} 
+export const getMyId = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/user/me`, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    return response.data.id;
+  } catch (error) {
+    console.error('내 정보를 불러오는 데 실패했습니다: ', error);
+    throw error;
+  }
+};
+
 export const fetchBoards = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/board/myBoard`, {
@@ -145,4 +175,26 @@ export const moveTaskToAnotherColumn = async (columnId, taskId) => {
       },
     );
   } catch (error) {}
+};
+
+/**
+ * 컬럼 순서 변경
+ */
+export const updateColumnOrder = async (boardId, columnOrder) => {
+  try {
+    const response = await axios.patch(
+      `${API_BASE_URL}/board/column-order/${boardId}`,
+      {
+        columnOrder: `[${columnOrder}]`,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+  } catch (error) {
+    console.error(`컬럼을 이동하지 못했습니다.`, error);
+    throw error;
+  }
 };

@@ -1,19 +1,24 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
-export class SocketStateService {
-  private userIdToSocketIdMap = {};
+export class NotificationsService {
+  constructor(@Inject(CACHE_MANAGER) private readonly cacheManager: Cache) {}
 
-  setUserSocketId(userId: string, socketId: string) {
-    this.userIdToSocketIdMap[userId] = socketId;
+  // 웹소켓 ID 저장
+  async saveWebSocketId(userId: string, socketId: string): Promise<void> {
+    await this.cacheManager.set(`socket:${userId}`, socketId, { ttl: 0 });
   }
 
-  removeUserSocketId(userId: string) {
-    delete this.userIdToSocketIdMap[userId];
+  // 웹소켓 ID 조회
+  async getWebSocketId(userId: string): Promise<string | null> {
+    const socketId = await this.cacheManager.get<string>(`socket:${userId}`);
+    return socketId;
   }
 
-  findSocketIdByUserId(userId: string): string | undefined {
-    return this.userIdToSocketIdMap[userId];
+  // 웹소켓 ID 삭제
+  async removeWebSocketId(userId: string): Promise<void> {
+    await this.cacheManager.del(`socket:${userId}`);
   }
 }
-

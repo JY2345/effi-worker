@@ -186,14 +186,78 @@ Columns
   margin-top: 10px;
   padding: 5px 10px;
   font-size: 12px;
-  background-color: #ff4d4f; /* 빨간색 계열로 경고 표시 */
+  background-color: #ff4d4f;
   color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  align-self: flex-start; /* 컬럼의 상단에 위치 */
+  align-self: flex-start;
 }
 
 .delete-column-btn:hover {
-  background-color: #ff7875; /* 버튼에 마우스를 올렸을 때 밝은 빨간색으로 변경 */
+  background-color: #ff7875;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.notification button {
+  margin-left: 15px;
+  background: #f8f9fa;
+  color: #333;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+.notification button:hover {
+  background-color: #e2e6ea;
+}
+
+
+.add-board-form {
+  background-color: #f0f0f0;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+  position: fixed; 
+  top: 50%; 
+  left: 50%; 
+  transform: translate(-50%, -50%);
+  width: 300px; 
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
+  z-index: 1000; 
+}
+
+.add-board-form input,
+.add-board-form button {
+  display: block; 
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+  margin-top: 10px;
+  border: 1px solid #ccc; 
+  border-radius: 4px; 
+}
+
+.add-board-form button {
+  background-color: #007bff;
+  color: white;
+  font-weight: bold; 
+  cursor: pointer; 
+}
+
+.add-board-form button:hover {
+  background-color: #0056b3;
 }
