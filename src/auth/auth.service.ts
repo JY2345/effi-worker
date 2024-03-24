@@ -13,8 +13,8 @@ import { MailerService } from 'src/mailer/mailer.service';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -32,7 +32,7 @@ export class AuthService {
    * 1) registerWithEmail
    *    - email, name, password 입력 받고 사용자 생성
    *    - 생성이 완료되면 accessToken과 refreshToken을 반환. => 회원 가입 후 바로 로그인 할 수 있게
-   *
+
    * 2) loginWithEmail
    *    - email, password 입력하면 사용자 검증 진행
    *    - 검증이 완료되면 accessToken과 refreshToken을 반환
