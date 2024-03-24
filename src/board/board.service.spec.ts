@@ -17,6 +17,7 @@ describe('BoardService', () => {
   let columnRepositoryMock: Partial<
     Record<keyof Repository<ColumnEntity>, jest.Mock>
   >;
+  let userRepositoryMock: Partial<Record<keyof Repository<User>, jest.Mock>>;
 
   beforeEach(async () => {
     boardRepositoryMock = {
@@ -54,6 +55,10 @@ describe('BoardService', () => {
         {
           provide: getRepositoryToken(ColumnEntity),
           useValue: columnRepositoryMock,
+        },
+        {
+          provide: getRepositoryToken(User),
+          useValue: userRepositoryMock,
         },
       ],
     }).compile();
