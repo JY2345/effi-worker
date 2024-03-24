@@ -57,13 +57,19 @@ export class AuthService {
       sub: user.id,
       type: isRefreshToken ? 'refresh' : 'access',
     };
-    const token = this.jwtService.sign(payload);
-    if (payload.type === 'refresh') {
-      this.cacheManager.set(`REFRESH_TOKEN:${user.id}`, `${token}`, {
-        ttl: 3600,
-      });
+
+    // 리프레시 토큰과 액세스 토큰의 유효기간 설정
+    let expiresIn = '15m'; // 액세스 토큰
+    if (isRefreshToken) {
+      expiresIn = '12h'; // 리프레시 토큰 유효기간 7일
+      this.cacheManager.set(`REFRESH_TOKEN:${user.id}`, payload, {
+        ttl: 60 * 60 * 24 * 7,
+      }); // 캐시(redis)도 동일하게 지정
     }
-    return this.jwtService.sign(payload);
+
+    return this.jwtService.sign(payload, {
+      expiresIn: expiresIn,
+    });
   }
 
   loginUser(user: Pick<User, 'email' | 'id'>) {

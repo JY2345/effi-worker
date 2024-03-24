@@ -23,9 +23,6 @@ import { RedisCacheModule } from 'src/cache/redis-cache.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET_KEY'),
-        signOptions: {
-          expiresIn: '12h',
-        },
       }),
     }),
     RedisCacheModule,
