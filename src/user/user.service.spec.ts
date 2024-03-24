@@ -16,6 +16,7 @@ describe('UserService', () => {
       findOneBy: jest.fn(),
       update: jest.fn(),
       create: jest.fn(),
+      findOne: jest.fn(),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -86,19 +87,21 @@ describe('UserService', () => {
       updatedAt: '2024-03-20T23:30:59.524Z',
     };
     // Mock의 findOneBy가 호출 => mockUser를 반환
-    userRepositoryMock.findOneBy.mockResolvedValue(mockUser);
+    userRepositoryMock.findOne.mockReturnValue(mockUser);
 
     // 실제 함수를 호출합니다.
-    const result = await userService.findByEmail('b@test.com');
+    const result = await userService.findByEmail(mockUser.email);
 
     // 실제 findByEmail 함수와 일치하는 지
     expect(result).toEqual(mockUser);
 
-    expect(userRepositoryMock.findOneBy).toHaveBeenCalledTimes(1);
+    expect(userRepositoryMock.findOne).toHaveBeenCalledTimes(1);
 
     // Mock의 findOneBy 함수가 정확한 인자와 함께 호출됐는지
-    expect(userRepositoryMock.findOneBy).toHaveBeenCalledWith({
-      email: 'user@test.com',
+    expect(userRepositoryMock.findOne).toHaveBeenCalledWith({
+      where: {
+        email: 'user@test.com',
+      },
     });
   });
 
