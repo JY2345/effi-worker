@@ -7,12 +7,16 @@ import {
   Param,
   Delete,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { CommentDto } from './dto/comment.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { UserInfo } from 'src/user/utils/userInfo.decorator';
 import { User } from 'src/user/entities/user.entity';
+import { FileInterceptor } from '@nestjs/platform-express';
+import * as AWS from 'aws-sdk';
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('comment')
@@ -25,11 +29,44 @@ export class CommentController {
   }
 
   @Post('/:taskId')
+  @UseInterceptors(FileInterceptor('file'))
   async createComment(
     @Param('taskId') taskId: number,
     @Body() commentDto: CommentDto,
     @UserInfo() user: User,
+    @UploadedFile() file,
   ) {
+    if (file) {
+      AWS.config.update({
+        credentials: {
+          accessKeyId: process.env.S3_ACCESSKEY,
+          secretAccessKey: process.env.S3_SECRETKEY,
+        },
+      });
+      try {
+        const key = `${Date.now() + file.originalname}`;
+        const upload = await new AWS.S3()
+          .putObject({
+            Key: key,
+            Body: file.buffer,
+            Bucket: process.env.BUCKET_NAME,
+          })
+          .promise();
+
+        const comment = await this.commentService.createWithFile(
+          taskId,
+          commentDto,
+          user.id,
+          key,
+        );
+
+        if (comment) {
+          return { message: '댓글생성 완료', comment };
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
     const comment = await this.commentService.create(
       taskId,
       commentDto,

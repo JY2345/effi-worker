@@ -26,7 +26,11 @@ import { SocketStateService } from './notifications/notifications.service';
 import { BoardService } from './board/board.service';
 import { join } from 'path';
 import { MailerModule } from './mailer/mailer.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import mime from 'mime';
 import { RedisCacheModule } from './cache/redis-cache.module';
+
 
 const typeOrmModuleOptions = {
   useFactory: async (
@@ -72,6 +76,26 @@ const typeOrmModuleOptions = {
       rootPath: join(__dirname, '..', 'client/build'),
     }),
     MailerModule,
+    MulterModule.register({
+      storage: diskStorage({
+        destination(req, file, callback) {
+          callback(null, './file');
+        },
+        filename(req, file, callback) {
+          callback(
+            null,
+            `${new Date().getTime()}.${mime.extension(file.mimetype)}`,
+          );
+        },
+      }),
+      limits: {
+        fileSize: 1024 * 1024 * 5,
+        files: 1,
+      },
+      fileFilter(req, file, callback) {
+        callback(null, true);
+      },
+    }),
   ],
 
   controllers: [AppController],
