@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchBoards } from './api';
+import { fetchBoards, createBoard } from './api';
 import Columns from './Columns';
 import Chat from './Chat';
 
@@ -36,6 +36,15 @@ function Board({ socket }) {
     }
   }, [selectedBoardId, socket]);
 
+  const handleAddBoardClick = () => {
+    setIsAddingBoard(true);
+  };
+  
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setNewBoard({ ...newBoard, [name]: value });
+  };
+
   const handleBoardClick = (boardId) => {
     setSelectedBoardId(boardId);
   };
@@ -44,12 +53,18 @@ function Board({ socket }) {
     const newBoard = {
       board_id: boards.length + 1,
       board_name: `새 보드 ${boards.length + 1}`,
-      board_color: '#cccccc',
+      board_color: '',
       board_info: '새로 추가된 보드입니다.',
       board_createdAt: new Date().toISOString(),
     };
 
     setBoards([...boards, newBoard]);
+  };
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    await createBoard(newBoard)
+    console.log(newBoard);
+    setIsAddingBoard(false); 
   };
 
   return (
@@ -66,18 +81,40 @@ function Board({ socket }) {
               <div className="list-title">{board.name}</div>
             </div>
           ))}
-
-          <button onClick={addBoard} className="add-board-btn">
+          <button onClick={handleAddBoardClick} className="add-board-btn">
             보드 추가
           </button>
-          <button onClick={addBoard} className="add-board-btn">
-            보드 초대
-          </button>
         </div>
+        {isAddingBoard && ( 
+          <form className='add-board-form' onSubmit={handleSubmit}>
+            <input
+              name="name"
+              value={newBoard.name}
+              onChange={handleChange}
+              placeholder="보드 이름"
+            />
+            <input
+              name="color"
+              value={newBoard.color}
+              onChange={handleChange}
+              placeholder="보드 색상"
+            />
+            <input
+              name="info"
+              value={newBoard.info}
+              onChange={handleChange}
+              placeholder="보드 정보"
+            />
+            <button type="submit">보드 생성</button>
+          </form>
+        )}
       </div>
 
       <div className="column_wrapper">
-        {selectedBoardId && <Columns socket={socket} boardId={selectedBoardId} />}
+        {selectedBoardId && (
+          <Columns socket={socket} boardId={selectedBoardId} />
+        )}
+
         <div className="chat_wrapper">
           {selectedBoardId && (
             <Chat boardId={selectedBoardId} socket={socket} />
