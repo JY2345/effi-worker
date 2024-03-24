@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   InternalServerErrorException,
   UnauthorizedException,
@@ -12,10 +13,13 @@ import { MailerService } from 'src/mailer/mailer.service';
 import { DataSource, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
+import { Cache } from 'cache-manager';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private dataSource: DataSource,
     private readonly jwtService: JwtService,
     private readonly userService: UserService,
@@ -28,7 +32,7 @@ export class AuthService {
    * 1) registerWithEmail
    *    - email, name, password 입력 받고 사용자 생성
    *    - 생성이 완료되면 accessToken과 refreshToken을 반환. => 회원 가입 후 바로 로그인 할 수 있게
-   *
+
    * 2) loginWithEmail
    *    - email, password 입력하면 사용자 검증 진행
    *    - 검증이 완료되면 accessToken과 refreshToken을 반환
@@ -53,7 +57,19 @@ export class AuthService {
       sub: user.id,
       type: isRefreshToken ? 'refresh' : 'access',
     };
-    return this.jwtService.sign(payload);
+
+    // 리프레시 토큰과 액세스 토큰의 유효기간 설정
+    let expiresIn = '15m'; // 액세스 토큰
+    if (isRefreshToken) {
+      expiresIn = '12h'; // 리프레시 토큰 유효기간 7일
+      this.cacheManager.set(`REFRESH_TOKEN:${user.id}`, payload, {
+        ttl: 60 * 60 * 24 * 7,
+      }); // 캐시(redis)도 동일하게 지정
+    }
+
+    return this.jwtService.sign(payload, {
+      expiresIn: expiresIn,
+    });
   }
 
   loginUser(user: Pick<User, 'email' | 'id'>) {
@@ -172,7 +188,7 @@ export class AuthService {
   }
   // Access Token 만료 뒤에도 Refresh Token 이용하여 로그인 할 수 있는 토큰 뱉기
   // 보통 토큰 재발급은 => rotate 라고 함
-  rotateToken(token: string, isRefreshToken: boolean) {
+  async rotateToken(token: string, isRefreshToken: boolean) {
     const decoded = this.jwtService.verify(token);
 
     // payload -> email, sub, type
@@ -181,6 +197,25 @@ export class AuthService {
       throw new UnauthorizedException(
         'Refresh Token으로만 재발급이 가능합니다.',
       );
+
+    const redis = await this.cacheManager.get(`REFRESH_TOKEN:${decoded.sub}`);
+
+    if (!redis || redis !== token)
+      throw new UnauthorizedException(
+        '토큰이 존재하지 않거나, 일치하지 않습니다.',
+      );
+
     return this.signToken({ ...decoded }, isRefreshToken);
+  }
+  async logout(token: string, isRefreshToken: boolean) {
+    const decoded = this.jwtService.verify(token);
+    const redis = await this.cacheManager.get(`REFRESH_TOKEN:${decoded.sub}`);
+
+    if (!redis || redis !== token)
+      throw new UnauthorizedException(
+        '토큰이 존재하지 않거나, 일치하지 않습니다.',
+      );
+
+    await this.cacheManager.del(`REFRESH_TOKEN:${decoded.sub}`);
   }
 }
