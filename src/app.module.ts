@@ -22,6 +22,8 @@ import { AuthModule } from './auth/auth.module';
 import { NotificationsGateway, BoardGateway } from './notifications/notifications.gateway';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { SocketStateService } from './notifications/notifications.service';
+import { BoardService } from './board/board.service';
 import { join } from 'path';
 import { MailerModule } from './mailer/mailer.module';
 import { RedisCacheModule } from './cache/redis-cache.module';
@@ -73,6 +75,6 @@ const typeOrmModuleOptions = {
   ],
 
   controllers: [AppController],
-  providers: [AppService, NotificationsGateway, BoardGateway],
+  providers: [AppService, NotificationsGateway, BoardGateway,SocketStateService, BoardService],
 })
 export class AppModule {}
