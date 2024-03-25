@@ -16,7 +16,8 @@ import { AuthGuard } from '@nestjs/passport';
 import { UserInfo } from 'src/user/utils/userInfo.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import * as AWS from 'aws-sdk';
+import S3 from 'aws-sdk/clients/s3';
+
 
 @UseGuards(AuthGuard('jwt'))
 @Controller('comment')
@@ -37,21 +38,18 @@ export class CommentController {
     @UploadedFile() file,
   ) {
     if (file) {
-      AWS.config.update({
-        credentials: {
-          accessKeyId: process.env.S3_ACCESSKEY,
-          secretAccessKey: process.env.S3_SECRETKEY,
-        },
+      const s3 = new S3({
+        accessKeyId: process.env.S3_ACCESSKEY,
+        secretAccessKey: process.env.S3_SECRETKEY,
       });
+      
       try {
         const key = `${Date.now() + file.originalname}`;
-        const upload = await new AWS.S3()
-          .putObject({
-            Key: key,
-            Body: file.buffer,
-            Bucket: process.env.BUCKET_NAME,
-          })
-          .promise();
+        const upload = await s3.putObject({
+          Key: key,
+          Body: file.buffer,
+          Bucket: process.env.BUCKET_NAME,
+        }).promise();
 
         const comment = await this.commentService.createWithFile(
           taskId,
