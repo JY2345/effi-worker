@@ -74,3 +74,8 @@ jobs:
           port: ${{ secrets.EC2_PORT }} # SSH 연결에 사용할 포트 번호
           script: | #  EC2 인스턴스에서 실행할 스크립트를 정의.
             cd /home/ubuntu/effi-worker
+            git pull origin dev
+            pm2 kill
+            npm i --force
+            npm run build
+            pm2 start dist/main.js
