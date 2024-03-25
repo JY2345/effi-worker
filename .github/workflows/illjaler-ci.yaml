@@ -66,7 +66,7 @@ jobs:
       - name: Get Code
         uses: actions/checkout@v3
       - name: Deploy to EC2
-        uses: appleboy/ssh-action@master # appleboy/ssh-action GitHub 액션을 사용하여 SSH로 원격 서버에 접속
+        uses: appleboy/ssh-action@v0.1.6 # appleboy/ssh-action GitHub 액션을 사용하여 SSH로 원격 서버에 접속
         with:
           host: ${{ secrets.EC2_HOST }} # EC2 인스턴스의 호스트 주소, ${{ secrets.HOST }}를 사용하여 GitHub Secrets에 저장된 값으로 설정
           username: ${{ secrets.USERNAME }} # SSH로 접속할 때 사용할 사용자 이름
