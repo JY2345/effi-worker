@@ -167,20 +167,20 @@ export class AuthService {
    * 2) email:password -> [email, password]
    * 3) {email,password}
    */
-  decodeBasicToken(base64String: string) {
-    // base64 -> utf8  변환 -> 1번 모양으로 바뀜
-    const decoded = Buffer.from(base64String, 'base64').toString('utf8');
+  // decodeBasicToken(base64String: string) {
+  //   // base64 -> utf8  변환 -> 1번 모양으로 바뀜
+  //   const decoded = Buffer.from(base64String, 'base64').toString('utf8');
 
-    // (2번) 과정
-    const split = decoded.split(':');
-    if (split.length !== 2)
-      throw new UnauthorizedException('잘못된 유형의 토큰입니다.');
+  //   // (2번) 과정
+  //   const split = decoded.split(':');
+  //   if (split.length !== 2)
+  //     throw new UnauthorizedException('잘못된 유형의 토큰입니다.');
 
-    const email = split[0];
-    const password = split[1];
-    // (3)번 과정
-    return { email, password };
-  }
+  //   const email = split[0];
+  //   const password = split[1];
+  //   // (3)번 과정
+  //   return { email, password };
+  // }
 
   //토큰 검증
   verifyToken(token: string) {
