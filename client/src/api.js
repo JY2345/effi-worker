@@ -5,7 +5,6 @@ const accessToken = localStorage.getItem('accessToken');
 
 export const createBoard = async(newBoard)=>{
   try {
-    console.log(newBoard)
     const response = await axios.post(`${API_BASE_URL}/board`, {
       ...newBoard
     }, {

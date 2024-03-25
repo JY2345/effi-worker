@@ -9,7 +9,7 @@ function Board({ socket }) {
   const [selectedBoardId, setSelectedBoardId] = useState(null);
   const [newBoard, setNewBoard] = useState({
     name: '',
-    color: '#cccccc',
+    color: '',
     info: '',
   });
 
@@ -62,9 +62,19 @@ function Board({ socket }) {
   };
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createBoard(newBoard)
-    console.log(newBoard);
-    setIsAddingBoard(false); 
+    try {
+      await createBoard(newBoard);
+      setIsAddingBoard(false); 
+      const boardsData = await fetchBoards();
+      setBoards(boardsData);
+      setNewBoard({
+        name: '',
+        color: '',
+        info: '',
+      });
+    } catch (error) {
+      console.error('보드 추가에 실패했습니다: ', error);
+    }
   };
 
   return (
