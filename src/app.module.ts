@@ -19,11 +19,20 @@ import { Comment } from './comment/entities/comment.entity';
 
 import { AuthModule } from './auth/auth.module';
 
-import { NotificationsGateway } from './notifications/notifications.gateway';
+import {
+  NotificationsGateway,
+  BoardGateway,
+  AppGateway,
+} from './notifications/notifications.gateway';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { NotificationsService } from './notifications/notifications.service';
+import { BoardService } from './board/board.service';
 import { join } from 'path';
 import { MailerModule } from './mailer/mailer.module';
+import { MulterModule } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import mime from 'mime';
 import { RedisCacheModule } from './cache/redis-cache.module';
 
 const typeOrmModuleOptions = {
@@ -70,9 +79,36 @@ const typeOrmModuleOptions = {
       rootPath: join(__dirname, '..', 'client/build'),
     }),
     MailerModule,
+    MulterModule.register({
+      storage: diskStorage({
+        destination(req, file, callback) {
+          callback(null, './file');
+        },
+        filename(req, file, callback) {
+          callback(
+            null,
+            `${new Date().getTime()}.${mime.extension(file.mimetype)}`,
+          );
+        },
+      }),
+      limits: {
+        fileSize: 1024 * 1024 * 5,
+        files: 1,
+      },
+      fileFilter(req, file, callback) {
+        callback(null, true);
+      },
+    }),
   ],
 
   controllers: [AppController],
-  providers: [AppService, NotificationsGateway],
+  providers: [
+    AppService,
+    AppGateway,
+    NotificationsGateway,
+    NotificationsService,
+    BoardGateway,
+    BoardService,
+  ],
 })
 export class AppModule {}

@@ -38,4 +38,7 @@ export class Comment {
 
   @Column({ type: 'int', unsigned: true, name: 'userId', nullable: false })
   userId: number;
+
+  @Column({ type: 'varchar', nullable: true, name: 'fileKey' })
+  fileKey: string;
 }

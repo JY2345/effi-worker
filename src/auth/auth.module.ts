@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { JwtModule } from '@nestjs/jwt';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
@@ -29,6 +29,6 @@ import { RedisCacheModule } from 'src/cache/redis-cache.module';
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, MailerService],
-  exports: [TypeOrmModule.forFeature([User])],
+  exports: [TypeOrmModule.forFeature([User]),AuthService],
 })
 export class AuthModule {}
