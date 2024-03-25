@@ -4,7 +4,7 @@ import './App.css';
 import Board from './Board';
 import { getMyId } from './api';
 import LoginForm from './LoginForm';
-
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 function App() {
   const [user, setUser] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -23,8 +23,8 @@ function App() {
           const userId = await getMyId();
           // 웹소켓 연결 URL에 사용자 ID 쿼리 파라미터 추가
           const socketUrl = userId
-            ? `http://localhost:3000?userId=${userId}`
-            : 'http://localhost:3000';
+            ? `${API_BASE_URL}?userId=${userId}`
+            : `${API_BASE_URL}`;
           const socket = io(socketUrl);
           setSocket(socket);
         } catch (error) {
