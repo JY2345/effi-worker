@@ -73,6 +73,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }} # SSH 키 파일의 내용
           port: ${{ secrets.EC2_PORT }} # SSH 연결에 사용할 포트 번호
           script: | #  EC2 인스턴스에서 실행할 스크립트를 정의.
+            sudo chmod -R ugo+rwX .
             cd /home/ubuntu/effi-worker
             git pull origin dev
             pm2 kill
