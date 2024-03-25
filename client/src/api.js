@@ -164,7 +164,7 @@ export const inviteUserToBoard = async(boardId, userId) => {
     const response = await axios.post(
       `${API_BASE_URL}/board/${boardId}`,
       {
-        inviteId: `[${userId}]`,
+        inviteId: [userId],
       },
       {
         headers: {
@@ -173,7 +173,8 @@ export const inviteUserToBoard = async(boardId, userId) => {
       },
     );
   } catch (error) {
-    console.log("userId : "+userId)
+    console.log("`[${userId}]` : "+`[${userId}]`)
+    console.log(`${API_BASE_URL}/board/${boardId}`)
     console.log(error)
     console.error(`초대에 실패했습니다: `, error);
     throw error;
@@ -239,6 +240,30 @@ export const updateColumnOrder = async (boardId, columnOrder) => {
     );
   } catch (error) {
     console.error(`컬럼을 이동하지 못했습니다.`, error);
+    throw error;
+  }
+};
+
+
+/**
+ * 태스크 추가
+ */
+export const addTaskToColumn = async (columnId, task) => {
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/task/create`,
+      {
+        columnId,
+        ...task
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+  } catch (error) {
+    console.error(`테스크를 추가하지 못했습니다.`, error);
     throw error;
   }
 };

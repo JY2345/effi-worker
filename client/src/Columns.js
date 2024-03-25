@@ -7,6 +7,7 @@ import {
   updateTaskOrder,
   updateColumnOrder,
   moveTaskToAnotherColumn,
+  addTaskToColumn,
 } from './api';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
@@ -166,24 +167,71 @@ function Columns({ boardId, socket }) {
     }
   };
 
-  // const handleAddTaskToColumn = async (columnId, taskName) => {
-  //   try {
-  //     await addTaskToColumn(columnId, taskName);
-  //     const updatedTasks = await fetchTasksForColumn(columnId);
+  function TaskForm({ columnId, onSave }) {
+    const [taskName, setTaskName] = useState('');
+    const [taskInfo, setTaskInfo] = useState('');
+    const [taskColor, setTaskColor] = useState('');
+    const [dueDate, setDueDate] = useState('');
+  
+    const handleSubmit = async (e) => {
+      e.preventDefault();
 
-  //     // 상태 업데이트: 컬럼의 태스크 목록을 업데이트합니다.
-  //     setColumns((prevColumns) =>
-  //       prevColumns.map((column) => {
-  //         if (column.id === columnId) {
-  //           return { ...column, tasks: updatedTasks };
-  //         }
-  //         return column;
-  //       }),
-  //     );
-  //   } catch (error) {
-  //     console.error('태스크 추가에 실패했습니다:', error);
-  //   }
-  // };
+      onSave(columnId, { name: taskName, info: taskInfo, color: taskColor, dueDate });
+      // 입력 필드 초기화
+      setTaskName('');
+      setTaskInfo('');
+      setTaskColor('');
+      setDueDate('');
+    };
+  
+    return (
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={taskName}
+          onChange={(e) => setTaskName(e.target.value)}
+          placeholder="태스크 이름"
+          required
+        />
+        <input
+          type="text"
+          value={taskInfo}
+          onChange={(e) => setTaskInfo(e.target.value)}
+          placeholder="태스크 설명"
+        />
+        <input
+          type="color"
+          value={taskColor}
+          onChange={(e) => setTaskColor(e.target.value)}
+          placeholder="태스크 색상"
+        />
+        <input
+          type="date"
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+          placeholder="마감일"
+        />
+        <button type="submit">저장</button>
+      </form>
+    );
+  }
+
+  const handleAddTaskToColumn = async (columnId, task) => {
+    try {
+      console.log("task:"+JSON.stringify(task))
+      await addTaskToColumn(columnId, task);
+      const updatedTasks = await fetchTasksForColumn(columnId);
+    
+      setColumns(prevColumns => prevColumns.map(column => {
+        if (column.id === columnId) {
+          return { ...column, tasks: updatedTasks };
+        }
+        return column;
+      }));
+    } catch (error) {
+      console.error("태스크 추가에 실패했습니다:", error);
+    }
+  };
 
   const updateColumnsAndTasks = async () => {
     try {
@@ -219,6 +267,7 @@ function Columns({ boardId, socket }) {
         <div className='columns'>
         {columns.map((column, index) => (
           <div key={column.id} className="column">
+            <TaskForm columnId={column.id} onSave={handleAddTaskToColumn} />
             <h2 className="column-title">{column.name}</h2>
             <button
               className="delete-column-btn"
