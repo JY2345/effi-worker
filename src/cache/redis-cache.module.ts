@@ -6,7 +6,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // 앱 전역에서 ConfigModule을 사용할 수 있도록 합니다.
+      isGlobal: true,
     }),
     CacheModule.registerAsync({
       imports: [ConfigModule],
@@ -19,7 +19,6 @@ import { CacheModule } from '@nestjs/cache-manager';
           port: configService.get('REDIS_PORT'),
           auth_pass: configService.get('REDIS_PASSWORD'),
         };
-        console.log('Redis Config:', redisConfig);
         return redisConfig;
       },
     }),

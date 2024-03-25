@@ -4,5 +4,5 @@ import { IsEmpty, IsString } from 'class-validator';
 
 export class UpdateUserDto extends PickType(User, ['name', 'password']) {
   @IsString()
-  newPassword: string;
+  newPassword?: string;
 }

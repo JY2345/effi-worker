@@ -40,6 +40,7 @@
     "@types/papaparse": "^5.3.14",
     "@types/passport-jwt": "^4.0.1",
     "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "cache-manager": "^4.1.0",
     "cache-manager-redis-store": "^2.0.0",
     "class-transformer": "^0.5.1",

@@ -59,7 +59,7 @@ export class AuthService {
     };
 
     // 리프레시 토큰과 액세스 토큰의 유효기간 설정
-    let expiresIn = '15m'; // 액세스 토큰
+    let expiresIn = '15m'; // 액세스 토큰 15분
     if (isRefreshToken) {
       expiresIn = '12h'; // 리프레시 토큰 유효기간 7일
       this.cacheManager.set(`REFRESH_TOKEN:${user.id}`, payload, {
