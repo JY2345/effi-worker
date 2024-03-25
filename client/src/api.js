@@ -161,7 +161,7 @@ export const fetchNonColumnMembers = async (columnId) => {
 };
 export const inviteUserToBoard = async(boardId, userId) => {
   try {
-    const response = await axios.patch(
+    const response = await axios.post(
       `${API_BASE_URL}/board/${boardId}`,
       {
         inviteId: `[${userId}]`,
@@ -173,6 +173,8 @@ export const inviteUserToBoard = async(boardId, userId) => {
       },
     );
   } catch (error) {
+    console.log("userId : "+userId)
+    console.log(error)
     console.error(`초대에 실패했습니다: `, error);
     throw error;
   }
