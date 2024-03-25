@@ -3,20 +3,24 @@ import axios from 'axios';
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 const accessToken = localStorage.getItem('accessToken');
 
-export const createBoard = async(newBoard)=>{
+export const createBoard = async (newBoard) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/board`, {
-      ...newBoard
-    }, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
+    const response = await axios.post(
+      `${API_BASE_URL}/board`,
+      {
+        ...newBoard,
       },
-    });
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
   } catch (error) {
     console.error('보드를 저장하는데 실패했습니다. : ', error);
     throw error;
   }
-} 
+};
 export const getMyId = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/user/me`, {
@@ -134,6 +138,45 @@ export const deleteColumnById = async (columnId) => {
     throw error;
   }
 };
+
+/**
+ * 보드 초대
+ */
+export const fetchNonColumnMembers = async (columnId) => {
+  try {
+    const response = await axios.get(
+      `${API_BASE_URL}/board/not-in-board/${columnId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error(`초대 대상자를 불러오는 데 실패했습니다: `, error);
+    throw error;
+  }
+};
+export const inviteUserToBoard = async(boardId, userId) => {
+  try {
+    const response = await axios.patch(
+      `${API_BASE_URL}/board/${boardId}`,
+      {
+        inviteId: `[${userId}]`,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      },
+    );
+  } catch (error) {
+    console.error(`초대에 실패했습니다: `, error);
+    throw error;
+  }
+}
 
 /**
  * Task 순서 변경 1

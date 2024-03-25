@@ -90,6 +90,7 @@ function Columns({ boardId, socket }) {
       (source.droppableId === destination.droppableId &&
         source.index === destination.index)
     ) {
+      console.log( "destination : "+destination)
       return;
     }
     if (type === 'column') {
@@ -215,75 +216,54 @@ function Columns({ boardId, socket }) {
         </div>
       )}
       <DragDropContext onDragEnd={onDragEnd}>
-        <Droppable
-          droppableId="all-columns"
-          direction="horizontal"
-          type="column"
-        >
-          {(provided) => (
-            <div
-              className="columns"
-              {...provided.droppableProps}
-              ref={provided.innerRef}
+        <div className='columns'>
+        {columns.map((column, index) => (
+          <div key={column.id} className="column">
+            <h2 className="column-title">{column.name}</h2>
+            <button
+              className="delete-column-btn"
+              onClick={() => handleDeleteColumn(column.id)}
             >
-              {columns.map((column, index) => (
-                <Draggable
-                  key={column.id}
-                  draggableId={String(column.id)}
-                  index={index}
+              삭제
+            </button>
+            <Droppable droppableId={String(column.id)} type="task">
+              {(provided, snapshot) => (
+                <ul
+                  className="task-list"
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  style={{
+                    minHeight: "50px", 
+                    padding: "10px", 
+                    backgroundColor: snapshot.isDraggingOver ? "lightblue" : "transparent", 
+                  }}
                 >
-                  {(provided) => (
-                    <div
-                      className="column"
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
+                  {column.tasks?.data?.map((task, taskIndex) => (
+                    <Draggable
+                      key={task.id}
+                      draggableId={String(task.id)}
+                      index={taskIndex}
                     >
-                      <h2 className="column-title">{column.name}</h2>
-                      <button
-                        className="delete-column-btn"
-                        onClick={() => handleDeleteColumn(column.id)}
-                      >
-                        삭제
-                      </button>
-                      <Droppable droppableId={String(column.id)} type="task">
-                        {(provided) => (
-                          <ul
-                            className="task-list"
-                            {...provided.droppableProps}
-                            ref={provided.innerRef}
-                          >
-                            {column.tasks?.data?.map((task, taskIndex) => (
-                              <Draggable
-                                key={task.id}
-                                draggableId={String(task.id)}
-                                index={taskIndex}
-                              >
-                                {(provided) => (
-                                  <li
-                                    className="task"
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                  >
-                                    <h3>{task.name}</h3>
-                                    <p>{task.info}</p>
-                                  </li>
-                                )}
-                              </Draggable>
-                            ))}
-                            {provided.placeholder}
-                          </ul>
-                        )}
-                      </Droppable>
-                    </div>
-                  )}
-                </Draggable>
-              ))}
-              {provided.placeholder}
-            </div>
-          )}
-        </Droppable>
+                      {(provided) => (
+                        <li
+                          className="task"
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                        >
+                          <h3>{task.name}</h3>
+                          <p>{task.info}</p>
+                        </li>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </ul>
+              )}
+            </Droppable>
+          </div>
+        ))}
+        </div>
       </DragDropContext>
     </div>
   );

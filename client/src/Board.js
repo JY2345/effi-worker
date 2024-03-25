@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchBoards, createBoard } from './api';
+import { fetchBoards, createBoard, fetchNonColumnMembers,inviteUserToBoard } from './api';
 import Columns from './Columns';
 import Chat from './Chat';
 
@@ -7,11 +7,13 @@ function Board({ socket }) {
   const [boards, setBoards] = useState([]);
   const [isAddingBoard, setIsAddingBoard] = useState(false);
   const [selectedBoardId, setSelectedBoardId] = useState(null);
+  const [isInviting, setIsInviting] = useState(false);
   const [newBoard, setNewBoard] = useState({
     name: '',
     color: '',
     info: '',
   });
+  const [usersNotInBoard, setUsersNotInBoard] = useState([]);
 
   useEffect(() => {
     const initFetchBoards = async () => {
@@ -26,6 +28,22 @@ function Board({ socket }) {
     initFetchBoards();
   }, []);
 
+  // 보드 초대를 위한 사용자 조회
+  const fetchUsersForInvite = async () => {
+    if (!selectedBoardId) return;
+    try {
+      const users = await fetchNonColumnMembers(selectedBoardId);
+      setUsersNotInBoard(users.users);
+    } catch (error) {
+      console.error('사용자 조회에 실패했습니다: ', error);
+    }
+  };
+  // 초대 모달을 표시
+  const handleInviteClick = () => {
+    setIsInviting(true);
+    fetchUsersForInvite();
+  };
+
   useEffect(() => {
     if (selectedBoardId) {
       socket.emit('joinRoom', selectedBoardId);
@@ -39,7 +57,7 @@ function Board({ socket }) {
   const handleAddBoardClick = () => {
     setIsAddingBoard(true);
   };
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setNewBoard({ ...newBoard, [name]: value });
@@ -64,7 +82,7 @@ function Board({ socket }) {
     e.preventDefault();
     try {
       await createBoard(newBoard);
-      setIsAddingBoard(false); 
+      setIsAddingBoard(false);
       const boardsData = await fetchBoards();
       setBoards(boardsData);
       setNewBoard({
@@ -74,6 +92,18 @@ function Board({ socket }) {
       });
     } catch (error) {
       console.error('보드 추가에 실패했습니다: ', error);
+    }
+  };
+
+  const handleUserInviteClick = async (userId) => {
+    const confirmInvite = window.confirm('해당 보드에 초대하시겠습니까?');
+    if (confirmInvite) {
+      try {
+        await inviteUserToBoard(selectedBoardId, userId);
+        alert('사용자가 성공적으로 초대되었습니다.');
+      } catch (error) {
+        alert('초대에 실패했습니다.');
+      }
     }
   };
 
@@ -94,9 +124,22 @@ function Board({ socket }) {
           <button onClick={handleAddBoardClick} className="add-board-btn">
             보드 추가
           </button>
+          <button onClick={handleInviteClick} className="invite-board-btn">
+            보드 초대
+          </button>
+          {isInviting && (
+          <div className="invite-modal">
+            {usersNotInBoard.map((user) => (
+              <div key={user.id} onClick={() => handleUserInviteClick(user.id)}>
+                {user.name}
+              </div>
+            ))}
+            <button onClick={() => setIsInviting(false)}>닫기</button>
+          </div>
+          )}
         </div>
-        {isAddingBoard && ( 
-          <form className='add-board-form' onSubmit={handleSubmit}>
+        {isAddingBoard && (
+          <form className="add-board-form" onSubmit={handleSubmit}>
             <input
               name="name"
               value={newBoard.name}
