@@ -15,6 +15,7 @@ import { RedisCacheModule } from 'src/cache/redis-cache.module';
 
 @Module({
   imports: [
+    RedisCacheModule,
     TypeOrmModule.forFeature([User]),
     PassportModule.register({ defaultStrategy: 'jwt', session: false }),
     UserModule,
@@ -25,7 +26,6 @@ import { RedisCacheModule } from 'src/cache/redis-cache.module';
         secret: configService.get<string>('JWT_SECRET_KEY'),
       }),
     }),
-    RedisCacheModule,
   ],
   controllers: [AuthController],
   providers: [AuthService, JwtStrategy, MailerService],
